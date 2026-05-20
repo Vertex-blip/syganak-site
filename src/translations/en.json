@@ -677,7 +677,7 @@
     "question": "Question",
     "answer": "Answer",
     "production_note": "Firebase, mobile admin, news CRUD, and application tracking are connected through one control panel.",
-    "firebase_note": "Fill Firebase production environment variables before deployment.",
+    "firebase_note": "",
     "admin_panel_subtitle": "Administrative management panel",
     "email": "Email",
     "logout_confirm": "Confirm logout?",

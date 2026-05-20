@@ -85,6 +85,7 @@ const makeNotification = (source, id, data, language, read = false) => {
     createdAtMs: toMillis(createdAt),
     date: formatDate(createdAt, language),
     read,
+    rawData: data,
   };
 };
 

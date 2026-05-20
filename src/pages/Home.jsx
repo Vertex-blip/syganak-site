@@ -30,7 +30,15 @@ const featuredTeacherIds = [
 
 const Home = () => {
   const { t, i18n } = useTranslation();
-  const institute = useMemo(() => getInstituteContent(i18n.language), [i18n.language]);
+  const [overrideVersion, setOverrideVersion] = useState(0);
+
+  useEffect(() => {
+    const handleLoaded = () => setOverrideVersion((v) => v + 1);
+    window.addEventListener('syganaki-siteTexts-loaded', handleLoaded);
+    return () => window.removeEventListener('syganaki-siteTexts-loaded', handleLoaded);
+  }, []);
+
+  const institute = useMemo(() => getInstituteContent(i18n.language), [i18n.language, overrideVersion]);
   const [latestNews, setLatestNews] = useState(institute.news.slice(0, 3));
   const programs = institute.programs.slice(0, 2);
   const gallery = institute.gallery.slice(0, 4);
@@ -288,6 +296,42 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Custom Dynamic Blocks Section */}
+      {institute.customBlocks?.home?.length > 0 && (
+        <section className="section-y bg-white border-t border-slate-100">
+          <div className="container-custom">
+            <div className="mb-10 max-w-3xl">
+              <p className="section-eyebrow">{t('common.additional_info', { defaultValue: 'Қосымша ақпарат' })}</p>
+              <h2 className="section-title text-balance">
+                {t('home.custom_blocks_title', { defaultValue: 'Институттың маңызды жаңалықтары мен ерекшеліктері' })}
+              </h2>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {institute.customBlocks.home.map((block, index) => (
+                <motion.div
+                  key={block.id || index}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true, margin: '-80px' }}
+                  variants={fadeUp}
+                  transition={{ delay: index * 0.05 }}
+                  className="premium-card p-6 bg-white border border-slate-100/80 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                >
+                  {block.badge && (
+                    <span className="inline-block text-[10px] font-extrabold uppercase tracking-[0.12em] text-accent-gold bg-accent-lightGold px-2.5 py-1 rounded-md mb-4">
+                      {block.badge}
+                    </span>
+                  )}
+                  <h4 className="text-lg font-bold text-primary-dark font-serif leading-snug">{block.title}</h4>
+                  <p className="mt-3 text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{block.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="section-y bg-background">
         <div className="container-custom">

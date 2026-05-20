@@ -20,7 +20,15 @@ import { WHATSAPP_NUMBER } from '../config/site';
 
 const Admission = () => {
   const { t, i18n } = useTranslation();
-  const institute = getInstituteContent(i18n.language);
+  const [overrideVersion, setOverrideVersion] = useState(0);
+
+  useEffect(() => {
+    const handleLoaded = () => setOverrideVersion((v) => v + 1);
+    window.addEventListener('syganaki-siteTexts-loaded', handleLoaded);
+    return () => window.removeEventListener('syganaki-siteTexts-loaded', handleLoaded);
+  }, []);
+
+  const institute = useMemo(() => getInstituteContent(i18n.language), [i18n.language, overrideVersion]);
   const fallbackPrograms = institute.programs;
   const [programs, setPrograms] = useState([]);
   const [loadingPrograms, setLoadingPrograms] = useState(true);
@@ -213,6 +221,39 @@ const Admission = () => {
                 ))}
               </div>
             </div>
+
+            {/* Custom Dynamic Blocks Section */}
+            {institute.customBlocks?.admission?.length > 0 && (
+              <div className="space-y-6">
+                <div className="mb-6">
+                  <p className="section-eyebrow">{t('common.additional_info', { defaultValue: 'Қосымша ақпарат' })}</p>
+                  <h2 className="text-3xl font-bold text-primary-dark">
+                    {t('admission.custom_blocks_title', { defaultValue: 'Қосымша талаптар мен мәліметтер' })}
+                  </h2>
+                </div>
+
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {institute.customBlocks.admission.map((block, index) => (
+                    <motion.div
+                      key={block.id || index}
+                      initial={{ opacity: 0, y: 15 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: '-80px' }}
+                      transition={{ delay: index * 0.05 }}
+                      className="premium-card p-6 bg-white border border-slate-100/80 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                    >
+                      {block.badge && (
+                        <span className="inline-block text-[10px] font-extrabold uppercase tracking-[0.12em] text-accent-gold bg-accent-lightGold px-2.5 py-1 rounded-md mb-4">
+                          {block.badge}
+                        </span>
+                      )}
+                      <h4 className="text-lg font-bold text-primary-dark font-serif leading-snug">{block.title}</h4>
+                      <p className="mt-3 text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{block.description}</p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           <aside id="application" className="premium-panel sticky top-24 scroll-mt-28 bg-white p-6 sm:p-8">

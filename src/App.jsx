@@ -29,6 +29,11 @@ const AdminAssistant = lazy(() => import('./admin/AssistantManager'));
 const AdminNotifications = lazy(() => import('./admin/Notifications'));
 const Login = lazy(() => import('./admin/Login'));
 
+import { useEffect } from 'react';
+import i18n from './i18n';
+import { collection, getDocs } from 'firebase/firestore';
+import { db, isFirebaseConfigured } from './firebase/config';
+
 const PageLoader = () => (
   <div className="flex min-h-screen items-center justify-center bg-background pt-24">
     <div className="h-11 w-11 animate-spin rounded-full border-2 border-primary border-t-transparent" />
@@ -36,6 +41,53 @@ const PageLoader = () => (
 );
 
 function App() {
+  useEffect(() => {
+    const loadDynamicOverrides = async () => {
+      try {
+        let rows = [];
+        if (isFirebaseConfigured) {
+          const snapshot = await getDocs(collection(db, 'siteTexts'));
+          rows = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          window.localStorage.setItem('syganaki-siteTexts', JSON.stringify(rows));
+        } else {
+          const raw = window.localStorage.getItem('syganaki-siteTexts');
+          if (raw) {
+            rows = JSON.parse(raw);
+          }
+        }
+
+        if (rows && rows.length > 0) {
+          const languages = ['kz', 'ru', 'en', 'ar'];
+          languages.forEach((lang) => {
+            const langRows = rows.filter((r) => r.language === lang && !r.deleted);
+            if (langRows.length > 0) {
+              const overrides = {};
+              langRows.forEach((r) => {
+                if (r.key && !r.key.endsWith('.customBlocks')) {
+                  const parts = r.key.split('.');
+                  let current = overrides;
+                  for (let i = 0; i < parts.length - 1; i++) {
+                    const part = parts[i];
+                    if (!current[part]) current[part] = {};
+                    current = current[part];
+                  }
+                  current[parts[parts.length - 1]] = r.value || '';
+                }
+              });
+              i18n.addResourceBundle(lang, 'translation', overrides, true, true);
+            }
+          });
+          // Dispatch custom event to notify all listeners that translations/overrides have updated
+          window.dispatchEvent(new CustomEvent('syganaki-siteTexts-loaded'));
+        }
+      } catch (error) {
+        console.warn('Failed to load dynamic site overrides:', error);
+      }
+    };
+
+    loadDynamicOverrides();
+  }, []);
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>

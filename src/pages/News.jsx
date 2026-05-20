@@ -8,8 +8,8 @@ import { normalizeText } from '../utils/formatDate';
 
 const News = () => {
   const { t, i18n } = useTranslation();
-  const fallback = t('news.fallback', { returnObjects: true });
-  const categories = t('news.categories', { returnObjects: true });
+  const fallback = useMemo(() => t('news.fallback', { returnObjects: true }), [t]);
+  const categories = useMemo(() => t('news.categories', { returnObjects: true }), [t]);
   const [news, setNews] = useState(fallback);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');

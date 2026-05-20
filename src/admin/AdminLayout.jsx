@@ -5,7 +5,9 @@ import {
   Bell,
   Bot,
   CheckCircle2,
+  ChevronDown,
   FileText,
+  Globe,
   Image,
   Inbox,
   LayoutDashboard,
@@ -105,6 +107,13 @@ const PushNotificationsCard = ({ user }) => {
   );
 };
 
+const ADMIN_LANGUAGES = [
+  { code: 'kz', label: 'Қазақша', short: 'KZ' },
+  { code: 'ru', label: 'Русский', short: 'RU' },
+  { code: 'en', label: 'English', short: 'ENG' },
+  { code: 'ar', label: 'العربية', short: 'AR' },
+];
+
 const AdminLayout = () => {
   const { t, i18n } = useTranslation();
   const [user, setUser] = useState(null);
@@ -112,8 +121,16 @@ const AdminLayout = () => {
   const [accessDenied, setAccessDenied] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [langOpen, setLangOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const currentLang = ADMIN_LANGUAGES.find((l) => l.code === i18n.language) || ADMIN_LANGUAGES[0];
+
+  const changeAdminLanguage = (code) => {
+    i18n.changeLanguage(code);
+    setLangOpen(false);
+  };
 
   const unreadNotifications = useMemo(
     () => notifications.filter((item) => !item.read),
@@ -300,6 +317,47 @@ const AdminLayout = () => {
           </div>
           <div className="flex items-center gap-3">
             <PushNotificationsCard user={user} />
+
+            {/* Language switcher */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setLangOpen((v) => !v)}
+                className="flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2.5 text-xs font-bold text-slate-600 hover:bg-accent-lightGold hover:text-primary-dark"
+              >
+                <Globe size={15} className="opacity-70" />
+                {currentLang.short}
+                <ChevronDown size={13} className={`opacity-60 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
+              </button>
+              {langOpen && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Close language menu"
+                    className="fixed inset-0 z-[90]"
+                    onClick={() => setLangOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full z-[100] mt-2 w-36 overflow-hidden rounded-lg border border-slate-200 bg-white p-1.5 shadow-xl">
+                    {ADMIN_LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        type="button"
+                        onClick={() => changeAdminLanguage(lang.code)}
+                        className={`flex w-full items-center justify-between rounded px-3 py-2 text-xs font-semibold transition-colors ${
+                          currentLang.code === lang.code
+                            ? 'bg-primary/10 text-primary-dark'
+                            : 'text-slate-600 hover:bg-slate-50 hover:text-primary'
+                        }`}
+                      >
+                        <span>{lang.label}</span>
+                        <span className="opacity-50">{lang.short}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
             <button
               type="button"
               onClick={() => navigate('/admin/notifications')}

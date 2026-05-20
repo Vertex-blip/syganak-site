@@ -1,10 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, Instagram, Loader2, Mail, MapPin, Phone, Send, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { saveInquiry } from '../services/formService';
 import { isValidKazakhstanPhone } from '../utils/security';
 import { MAP_URL } from '../config/site';
+import { getInstituteContent } from '../data/instituteContent';
 
 const ContactCard = ({ icon, title, children }) => (
   <div className="premium-card p-6">
@@ -17,12 +18,21 @@ const ContactCard = ({ icon, title, children }) => (
 );
 
 const Contacts = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [overrideVersion, setOverrideVersion] = useState(0);
+
+  useEffect(() => {
+    const handleLoaded = () => setOverrideVersion((v) => v + 1);
+    window.addEventListener('syganaki-siteTexts-loaded', handleLoaded);
+    return () => window.removeEventListener('syganaki-siteTexts-loaded', handleLoaded);
+  }, []);
+
+  const institute = useMemo(() => getInstituteContent(i18n.language), [i18n.language, overrideVersion]);
   const subjects = t('contacts.subjects', { returnObjects: true });
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    subject: subjects[0],
+    subject: subjects ? subjects[0] : '',
     message: '',
     website: '',
   });
@@ -190,6 +200,41 @@ const Contacts = () => {
           </div>
         </div>
       </section>
+
+      {/* Custom Dynamic Blocks Section */}
+      {institute.customBlocks?.contacts?.length > 0 && (
+        <section className="section-y bg-white border-t border-slate-100">
+          <div className="container-custom">
+            <div className="mb-10 max-w-3xl">
+              <p className="section-eyebrow">{t('common.additional_info', { defaultValue: 'Қосымша ақпарат' })}</p>
+              <h2 className="section-title text-balance">
+                {t('contacts.custom_blocks_title', { defaultValue: 'Байланыс бойынша қосымша мәліметтер' })}
+              </h2>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {institute.customBlocks.contacts.map((block, index) => (
+                <motion.div
+                  key={block.id || index}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-80px' }}
+                  transition={{ delay: index * 0.05 }}
+                  className="premium-card p-6 bg-white border border-slate-100/80 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5"
+                >
+                  {block.badge && (
+                    <span className="inline-block text-[10px] font-extrabold uppercase tracking-[0.12em] text-accent-gold bg-accent-lightGold px-2.5 py-1 rounded-md mb-4">
+                      {block.badge}
+                    </span>
+                  )}
+                  <h4 className="text-lg font-bold text-primary-dark font-serif leading-snug">{block.title}</h4>
+                  <p className="mt-3 text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{block.description}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {submitted && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center bg-primary-dark/70 p-4 backdrop-blur-sm">

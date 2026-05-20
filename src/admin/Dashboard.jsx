@@ -113,7 +113,7 @@ const Dashboard = () => {
     ['/admin/news', t('admin.add_news'), Newspaper],
     ['/admin/programs', t('admin.add_program', { defaultValue: 'Бағдарлама қосу' }), Plus],
     ['/admin/gallery', t('admin.add_gallery_photo', { defaultValue: 'Галереяға фото қосу' }), Image],
-    ['/admin/content', t('admin.change_contacts', { defaultValue: 'Контакт өзгерту' }), Settings],
+    ['/admin/content?tab=contacts', t('admin.change_contacts', { defaultValue: 'Контакт өзгерту' }), Settings],
   ];
 
   return (
@@ -122,7 +122,6 @@ const Dashboard = () => {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-accent-gold">{t('admin.dashboard')}</p>
-            <h2 className="mt-2 text-2xl font-bold text-white">{t('admin.production_note')}</h2>
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             {quickActions.map(([to, label, Icon]) => (

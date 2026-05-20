@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Clock, Instagram, Mail, MapPin, Phone, Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,16 @@ import { MAP_URL } from '../config/site';
 
 const Footer = () => {
   const { t, i18n } = useTranslation();
-  const programs = getInstituteContent(i18n.language).programs.slice(0, 4);
+  const [overrideVersion, setOverrideVersion] = useState(0);
+
+  useEffect(() => {
+    const handleLoaded = () => setOverrideVersion((v) => v + 1);
+    window.addEventListener('syganaki-siteTexts-loaded', handleLoaded);
+    return () => window.removeEventListener('syganaki-siteTexts-loaded', handleLoaded);
+  }, []);
+
+  const institute = useMemo(() => getInstituteContent(i18n.language), [i18n.language, overrideVersion]);
+  const programs = institute.programs.slice(0, 4);
 
   const navLinks = [
     { label: t('nav.about'), path: '/about' },
@@ -29,6 +38,26 @@ const Footer = () => {
     <footer className="relative overflow-hidden bg-primary-dark text-white">
       <div className="islamic-pattern absolute inset-0 opacity-[0.08]" />
       <div className="container-custom relative z-10 py-14 sm:py-18">
+        {/* Custom Dynamic Blocks Section */}
+        {institute.customBlocks?.footer?.length > 0 && (
+          <div className="mb-12 border-b border-white/10 pb-8">
+            <p className="text-[10px] font-extrabold uppercase tracking-[0.2em] text-accent-gold">{t('common.additional_info', { defaultValue: 'Қосымша хабарландырулар' })}</p>
+            <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {institute.customBlocks.footer.map((block, index) => (
+                <div key={block.id || index} className="rounded-lg border border-white/10 bg-white/5 p-5 hover:bg-white/8 transition-colors">
+                  {block.badge && (
+                    <span className="inline-block text-[9px] font-extrabold uppercase tracking-[0.1em] text-primary bg-accent-gold px-2 py-0.5 rounded mb-3">
+                      {block.badge}
+                    </span>
+                  )}
+                  <h4 className="text-base font-bold text-white leading-snug">{block.title}</h4>
+                  <p className="mt-2 text-xs text-white/70 leading-relaxed whitespace-pre-wrap">{block.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.75fr_0.75fr_1fr]">
           <div>
             <Link to="/" className="mb-6 flex items-center gap-3">
