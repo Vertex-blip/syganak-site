@@ -280,12 +280,6 @@ const ContentManager = () => {
               </p>
             </div>
           </div>
-          <select value={language} onChange={(event) => setLanguage(event.target.value)} className="admin-input lg:w-44">
-            <option value="kz">Қазақша</option>
-            <option value="ru">Русский</option>
-            <option value="en">English</option>
-            <option value="ar">Arabic</option>
-          </select>
         </div>
       </div>
 

@@ -122,6 +122,7 @@ const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [langOpen, setLangOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -295,14 +296,6 @@ const AdminLayout = () => {
 
           <div className="border-t border-white/10 p-4 space-y-2">
             <PushNotificationsCard user={user} />
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="flex w-full items-center gap-3 rounded-lg px-4 py-3 text-sm font-bold text-red-200 hover:bg-red-500/10 hover:text-red-100"
-            >
-              <LogOut size={19} />
-              {t('admin.logout')}
-            </button>
           </div>
         </div>
       </aside>
@@ -369,21 +362,68 @@ const AdminLayout = () => {
                 <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
               )}
             </button>
-            <div className="hidden text-right sm:block">
-              <p className="max-w-[220px] truncate text-xs font-bold text-slate-700">{user?.email}</p>
-              <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-400">Administrator</p>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setProfileOpen((v) => !v)}
+                className="flex items-center gap-3 rounded-lg px-2 py-1.5 hover:bg-slate-100 transition-colors"
+              >
+                <div className="hidden text-right sm:block">
+                  <p className="max-w-[220px] truncate text-xs font-bold text-slate-700">{user?.email}</p>
+                  <p className="text-[10px] font-extrabold uppercase tracking-[0.14em] text-slate-400">Administrator</p>
+                </div>
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
+                  <User size={20} />
+                </div>
+              </button>
+              {profileOpen && (
+                <>
+                  <button
+                    type="button"
+                    aria-label="Close profile menu"
+                    className="fixed inset-0 z-[90]"
+                    onClick={() => setProfileOpen(false)}
+                  />
+                  <div className="absolute right-0 top-full z-[100] mt-2 w-72 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
+                    <div className="border-b border-slate-100 p-5">
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-lg">
+                          <User size={26} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-bold text-primary-dark">{user?.email}</p>
+                          <p className="mt-0.5 text-[10px] font-extrabold uppercase tracking-[0.14em] text-accent-gold">Administrator</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-3 space-y-1">
+                      <div className="rounded-lg bg-slate-50 px-4 py-3">
+                        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">{t('admin.email', { defaultValue: 'Email' })}</p>
+                        <p className="mt-1 text-xs font-bold text-slate-700">{user?.email}</p>
+                      </div>
+                      <div className="rounded-lg bg-slate-50 px-4 py-3">
+                        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">{t('admin.status', { defaultValue: 'Мәртебе' })}</p>
+                        <p className="mt-1 text-xs font-bold text-emerald-600">{t('admin.admin_panel_subtitle', { defaultValue: 'Әкімшілік басқару панелі' })}</p>
+                      </div>
+                      <div className="rounded-lg bg-slate-50 px-4 py-3">
+                        <p className="text-[10px] font-extrabold uppercase tracking-[0.12em] text-slate-400">UID</p>
+                        <p className="mt-1 truncate text-xs font-bold text-slate-500">{user?.uid || '—'}</p>
+                      </div>
+                    </div>
+                    <div className="border-t border-slate-100 p-3">
+                      <button
+                        type="button"
+                        onClick={() => { setProfileOpen(false); handleLogout(); }}
+                        className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-50 px-4 py-3 text-sm font-extrabold text-red-700 hover:bg-red-100 transition-colors"
+                      >
+                        <LogOut size={16} />
+                        {t('admin.logout')}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-white">
-              <User size={20} />
-            </div>
-            <button
-              type="button"
-              onClick={handleLogout}
-              className="hidden min-h-[40px] items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-extrabold text-red-700 hover:bg-red-100 lg:inline-flex"
-            >
-              <LogOut size={16} />
-              {t('admin.logout')}
-            </button>
           </div>
         </header>
 
