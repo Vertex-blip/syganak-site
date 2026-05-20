@@ -210,7 +210,7 @@ const programs = [
   {
     id: 'islamic-studies',
     title: L('Ислам ілімдері', 'Исламские науки', 'Islamic Sciences', 'العلوم الإسلامية'),
-    duration: L('3 оқу жылы', '3 учебных года', '3 academic years', '3 سنوات دراسية'),
+    duration: L('3 оқу жылы', '3 года обучения', '3 academic years', '3 سنوات دراسية'),
     format: L('1 жыл дайындық + 2 жыл негізгі оқу', '1 год подготовки + 2 года основного обучения', '1 preparatory year + 2 core years', 'سنة تمهيدية + سنتان أساسيتان'),
     image: baseImages.lecture,
     desc: L(
