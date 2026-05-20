@@ -620,6 +620,10 @@ const galleryBase = [
   ['Директор', 'Директор', 'Director', 'المدير', 'Teachers', '/institute/faculty-bagdat.jpg'],
   ['Құран ұстазы', 'Преподаватель Корана', 'Quran teacher', 'مدرس القرآن', 'Teachers', '/institute/faculty-temirzhan.jpg'],
   ['Араб тілі маманы', 'Специалист арабского языка', 'Arabic specialist', 'متخصص العربية', 'Teachers', '/institute/faculty-sabri.jpg'],
+  ['Зал оқу залы', 'Зал для оқу', 'Study hall', 'قاعة الدراسة', 'Learning', '/institute/study-hall.jpeg'],
+  ['Студенттік өмір', 'Студенческая жизнь', 'Student life', 'حياة الطلاب', 'Students', '/institute/student-life.jpg'],
+  ['Лекция сыныптары', 'Лекционные классы', 'Lecture class', 'محاضرة', 'Learning', '/institute/lecture-class.jpg'],
+  ['Кітапхана ішкі', 'Внутри библиотеки', 'Inside library', 'داخل المكتبة', 'Learning', '/institute/library.jpeg'],
 ];
 
 const categoryMap = {
