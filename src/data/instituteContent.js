@@ -210,7 +210,7 @@ const programs = [
   {
     id: 'islamic-studies',
     title: L('Ислам ілімдері', 'Исламские науки', 'Islamic Sciences', 'العلوم الإسلامية'),
-    duration: L('3 оқу жылы', '3 учебных года', '3 academic years', '3 سنوات دراسية'),
+    duration: L('3 оқу жылы', '3 года обучения', '3 academic years', '3 سنوات دراسية'),
     format: L('1 жыл дайындық + 2 жыл негізгі оқу', '1 год подготовки + 2 года основного обучения', '1 preparatory year + 2 core years', 'سنة تمهيدية + سنتان أساسيتان'),
     image: baseImages.lecture,
     desc: L(
@@ -366,7 +366,7 @@ const teachers = [
     role: L('Исламтанушы, институт түлегі', 'Исламовед, выпускник института', 'Islamic studies specialist, institute graduate', 'متخصص في الدراسات الإسلامية، خريج المعهد'),
     degree: L('Бакалавр', 'Бакалавр', 'Bachelor', 'بكالوريوس'),
     country: L('Қазақстан', 'Казахстан', 'Kazakhstan', 'كازاخستان'),
-    image: '',
+    image: '/institute/faculty-serik.jpg',
     education: {
       kz: ['Нұр-Мүбарак университеті, исламтану', 'Хусамуддин ас-Сығанақи атындағы ислам институты, Ислам ілімдері бөлімі'],
       ru: ['Университет Нур-Мубарак, исламоведение', 'Исламский институт имени Хусамуддина ас-Сыганаки, отделение исламских наук'],
@@ -633,6 +633,66 @@ export const getInstituteContent = (language = 'kz') => {
   const lang = localized[language] ? language : 'kz';
   const nameIndex = { kz: 0, ru: 1, en: 2, ar: 3 }[lang];
 
+  let localOverrides = [];
+  if (typeof window !== 'undefined') {
+    try {
+      const raw = window.localStorage.getItem('syganaki-siteTexts');
+      if (raw) {
+        localOverrides = JSON.parse(raw);
+      }
+    } catch (e) {
+      console.warn('Failed to parse local overrides in getInstituteContent', e);
+    }
+  }
+
+  const overrides = {};
+  localOverrides
+    .filter((item) => item.language === lang)
+    .forEach((item) => {
+      overrides[item.key] = item.value;
+    });
+
+  const baseContent = {
+    ...localized[lang],
+  };
+
+  // Dynamic overrides for simple text strings
+  if (overrides['home.heroTitle']) baseContent.heroTitle = overrides['home.heroTitle'];
+  if (overrides['home.heroSubtitle']) baseContent.heroSubtitle = overrides['home.heroSubtitle'];
+  if (overrides['home.heroButton']) baseContent.heroButton = overrides['home.heroButton'];
+
+  if (overrides['about.text']) baseContent.aboutText = overrides['about.text'];
+  if (overrides['about.mission']) baseContent.mission = overrides['about.mission'];
+  
+  if (overrides['about.values']) {
+    baseContent.aboutPoints = overrides['about.values']
+      .split('\n')
+      .map((line) => {
+        const idx = line.indexOf(':');
+        if (idx !== -1) {
+          return [line.slice(0, idx).trim(), line.slice(idx + 1).trim()];
+        }
+        return [line.trim(), ''];
+      })
+      .filter((p) => p[0]);
+  }
+
+  const parseBlocks = (key) => {
+    try {
+      return overrides[key] ? JSON.parse(overrides[key]) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const customBlocks = {
+    home: parseBlocks('home.customBlocks'),
+    about: parseBlocks('about.customBlocks'),
+    admission: parseBlocks('admission.customBlocks'),
+    contacts: parseBlocks('contacts.customBlocks'),
+    footer: parseBlocks('footer.customBlocks'),
+  };
+
   const localizedPrograms = programs.map((program) => localizeObject(program, lang));
   const localizedTeachers = teachers.map((teacher) => ({
     ...localizeObject(teacher, lang),
@@ -643,7 +703,8 @@ export const getInstituteContent = (language = 'kz') => {
   const localizedPartners = partners.map((partner) => localizeObject(partner, lang));
 
   return {
-    ...localized[lang],
+    ...baseContent,
+    customBlocks,
     baseImages,
     programs: localizedPrograms,
     teachers: localizedTeachers,

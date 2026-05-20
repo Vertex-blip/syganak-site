@@ -1,7 +1,6 @@
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -190,19 +189,26 @@ export const uploadNewsImage = async (file, folder = 'news') => {
     return resizeImage(file);
   }
 
-  const allowedFolders = new Set(['news', 'gallery']);
-  const targetFolder = allowedFolders.has(folder) ? folder : 'news';
-  const blob = await resizeImage(file, 'blob');
-  const safeBase = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(0, 80) || 'image';
-  const safeName = `${Date.now()}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}-${safeBase}.jpg`;
-  const imageRef = ref(storage, `${targetFolder}/${safeName}`);
-  const metadata = {
-    contentType: 'image/jpeg',
-    cacheControl: 'public,max-age=31536000,immutable',
-  };
+  // Try Firebase Storage; fall back to base64 if it fails (e.g. rules not configured)
+  try {
+    const allowedFolders = new Set(['news', 'gallery']);
+    const targetFolder = allowedFolders.has(folder) ? folder : 'news';
+    const blob = await resizeImage(file, 'blob');
+    const safeBase = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(0, 80) || 'image';
+    const safeName = `${Date.now()}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}-${safeBase}.jpg`;
+    const imageRef = ref(storage, `${targetFolder}/${safeName}`);
+    const metadata = {
+      contentType: 'image/jpeg',
+      cacheControl: 'public,max-age=31536000,immutable',
+    };
 
-  const uploadPromise = uploadBytes(imageRef, blob, metadata).then(() => getDownloadURL(imageRef));
-  const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000));
+    const uploadPromise = uploadBytes(imageRef, blob, metadata).then(() => getDownloadURL(imageRef));
+    const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 15000));
 
-  return Promise.race([uploadPromise, timeoutPromise]);
+    return await Promise.race([uploadPromise, timeoutPromise]);
+  } catch (storageError) {
+    console.warn('Firebase Storage upload failed, falling back to base64:', storageError.message);
+    // Fallback: store as base64 data URL
+    return resizeImage(file);
+  }
 };

@@ -11,13 +11,15 @@ const ProgramsManager = () => {
       fallbackItems={getInstituteContent(i18n.language).programs}
       title={t('admin.programs')}
       fields={[
-        { name: 'title', label: t('admin.title_field'), required: true },
-        { name: 'duration', label: t('programs.duration'), required: true },
-        { name: 'format', label: t('programs.format'), required: true },
-        { name: 'subjects', label: t('programs.subjects'), type: 'array' },
-        { name: 'opportunities', label: t('programs.opportunities'), type: 'array' },
-        { name: 'image', label: t('admin.image'), type: 'image' },
-        { name: 'desc', label: t('admin.description'), type: 'textarea', required: true },
+        { name: 'title', label: t('admin.program_title', { defaultValue: 'Бағдарлама атауы' }), required: true, placeholder: t('admin.program_title_ph', { defaultValue: 'Мысалы: Исламтану' }) },
+        { name: 'desc', label: t('admin.short_description', { defaultValue: 'Қысқаша сипаттама' }), type: 'textarea', required: true, placeholder: t('admin.short_description_ph', { defaultValue: 'Бағдарламаның қысқаша сипаттамасын енгізіңіз...' }) },
+        { name: 'fullDesc', label: t('admin.full_description', { defaultValue: 'Толық сипаттама' }), type: 'textarea', placeholder: t('admin.full_description_ph', { defaultValue: 'Толық ақпаратты енгізіңіз...' }) },
+        { name: 'duration', label: t('programs.duration'), required: true, placeholder: '4 жыл' },
+        { name: 'format', label: t('programs.format'), required: true, placeholder: t('admin.program_format_ph', { defaultValue: 'Күндізгі бөлім' }) },
+        { name: 'image', label: t('admin.image'), type: 'image', helper: t('admin.upload_hint') },
+        { name: 'subjects', label: t('programs.subjects'), type: 'array', placeholder: t('admin.subject_add_ph', { defaultValue: 'Пән атауын енгізіңіз' }) },
+        { name: 'opportunities', label: t('programs.opportunities'), type: 'array', placeholder: t('admin.opportunity_add_ph', { defaultValue: 'Мүмкіндікті енгізіңіз' }) },
+        { name: 'order', label: t('admin.display_order', { defaultValue: 'Көрсету реті' }), type: 'number', placeholder: '1' },
       ]}
     />
   );

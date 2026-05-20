@@ -17,13 +17,16 @@ import { useTranslation } from 'react-i18next';
 import MobileMenuAccordion from './MobileMenuAccordion';
 import { getInstituteContent } from '../data/instituteContent';
 import { normalizeText } from '../utils/formatDate';
+import { MAP_URL } from '../config/site';
 
 const languages = [
-  { code: 'kz', label: 'Қазақша', short: 'ҚАЗ' },
-  { code: 'ru', label: 'Русский', short: 'РУС' },
+  { code: 'kz', label: '\u049a\u0430\u0437\u0430\u049b\u0448\u0430', short: 'KZ' },
+  { code: 'ru', label: '\u0420\u0443\u0441\u0441\u043a\u0438\u0439', short: 'RU' },
   { code: 'en', label: 'English', short: 'ENG' },
-  { code: 'ar', label: 'العربية', short: 'عربي' },
+  { code: 'ar', label: '\u0627\u0644\u0639\u0631\u0628\u064a\u0629', short: 'AR' },
 ];
+
+const pathOnly = (path) => path.split('#')[0];
 
 const Navbar = () => {
   const { t, i18n } = useTranslation();
@@ -40,33 +43,74 @@ const Navbar = () => {
   const navItems = useMemo(
     () => [
       { label: t('nav.home'), path: '/' },
-      { label: t('nav.about'), path: '/about' },
-      { label: t('nav.programs'), path: '/programs' },
-      { label: t('nav.teachers'), path: '/teachers' },
-      { label: t('nav.partners'), path: '/partners' },
-      { label: t('nav.admission'), path: '/admission' },
+      {
+        label: t('nav.institute', { defaultValue: t('nav.about') }),
+        path: '/about',
+        children: [
+          { label: t('nav.about'), path: '/about' },
+          { label: t('nav.history_mission'), path: '/history-mission' },
+          { label: t('nav.leadership'), path: '/leadership' },
+          { label: t('nav.teachers'), path: '/teachers' },
+          { label: t('nav.partners'), path: '/partners' },
+          { label: t('nav.graduates'), path: '/graduates' },
+          { label: t('nav.license'), path: '/about#license' },
+          { label: t('nav.gallery'), path: '/gallery' },
+        ],
+      },
+      {
+        label: t('nav.programs'),
+        path: '/programs',
+        children: [
+          { label: t('nav.study_programs'), path: '/programs' },
+          { label: t('nav.program_directions'), path: '/programs#directions' },
+          { label: t('nav.study_format'), path: '/programs#format' },
+        ],
+      },
+      {
+        label: t('nav.admission'),
+        path: '/admission',
+        children: [
+          { label: t('nav.admission_process'), path: '/admission' },
+          { label: t('nav.required_docs'), path: '/admission#documents' },
+          { label: t('nav.faq'), path: '/faq' },
+          { label: t('nav.apply'), path: '/admission#application' },
+        ],
+      },
       { label: t('nav.news'), path: '/news' },
-      { label: t('nav.gallery'), path: '/gallery' },
-      { label: t('nav.contacts'), path: '/contacts' },
+      {
+        label: t('nav.contacts'),
+        path: '/contacts',
+        children: [
+          { label: t('nav.contacts'), path: '/contacts' },
+          { label: t('nav.admission_office'), path: '/contacts#admission-office' },
+          { label: t('nav.support'), path: '/donation' },
+        ],
+      },
     ],
     [t],
   );
 
   const currentLanguage =
     languages.find((language) => language.code === i18n.language) || languages[0];
-  const isLight = scrolled;
+  const isLight = scrolled || location.pathname !== '/';
+
+  const isItemActive = (item) => {
+    if (item.path === '/') return location.pathname === '/';
+    if (location.pathname === item.path) return true;
+    return item.children?.some((child) => pathOnly(child.path) === location.pathname);
+  };
 
   const searchResults = useMemo(() => {
+    const navigationItems = navItems.flatMap((item) => [item, ...(item.children || [])]);
     const baseItems = [
-      ...navItems.map((item) => ({ title: item.label, label: t('common.details'), path: item.path })),
+      ...navigationItems.map((item) => ({ title: item.label, label: t('common.details'), path: item.path })),
       ...institute.programs.map((item) => ({ title: item.title, label: t('nav.programs'), path: '/programs' })),
       ...institute.news.map((item) => ({ title: item.title, label: t('nav.news'), path: `/news/${item.id}` })),
-      ...institute.gallery.slice(0, 6).map((item) => ({ title: item.title, label: t('nav.gallery'), path: '/gallery' })),
     ];
     const query = normalizeText(searchQuery);
     const results = query
       ? baseItems.filter((item) => normalizeText(`${item.title} ${item.label}`).includes(query))
-      : baseItems.slice(0, 6);
+      : baseItems.slice(0, 7);
 
     return results.slice(0, 8);
   }, [institute, navItems, searchQuery, t]);
@@ -86,14 +130,14 @@ const Navbar = () => {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (!langOpen) return;
+    if (!langOpen) return undefined;
     const handleClick = () => setLangOpen(false);
     document.addEventListener('click', handleClick);
     return () => document.removeEventListener('click', handleClick);
   }, [langOpen]);
 
   useEffect(() => {
-    if (!searchOpen) return;
+    if (!searchOpen) return undefined;
     const handleKeyDown = (event) => {
       if (event.key === 'Escape') {
         setSearchOpen(false);
@@ -129,15 +173,15 @@ const Navbar = () => {
         className={`fixed inset-x-0 top-0 z-50 hidden border-b transition-all duration-500 lg:block ${
           scrolled
             ? '-translate-y-full border-transparent bg-primary-dark/0'
-            : 'translate-y-0 border-white/10 bg-primary-dark/60 backdrop-blur-xl'
+            : 'translate-y-0 border-white/10 bg-primary-dark/70 backdrop-blur-xl'
         }`}
       >
         <div className="container-custom flex h-10 items-center justify-between text-xs font-semibold text-white/80">
           <div className="flex min-w-0 items-center gap-6">
-            <span className="flex min-w-0 items-center gap-2">
+            <a href={MAP_URL} target="_blank" rel="noreferrer" className="flex min-w-0 items-center gap-2 hover:text-accent-gold">
               <MapPin size={14} className="shrink-0 text-accent-gold" />
-              <a href="https://2gis.kz/astana/geo/70000001066292633/71.416744,51.125984" target="_blank" rel="noreferrer" className="truncate hover:text-accent-gold">{t('topbar.address')}</a>
-            </span>
+              <span className="truncate">{t('topbar.address')}</span>
+            </a>
             <a href={`tel:${t('topbar.phone')}`} className="flex items-center gap-2 hover:text-accent-gold">
               <Phone size={14} className="text-accent-gold" />
               {t('topbar.phone')}
@@ -149,10 +193,10 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="https://www.instagram.com/h.syganaki.kz" target="_blank" rel="noreferrer" className="hover:text-accent-gold">
+            <a href="https://www.instagram.com/h.syganaki.kz" target="_blank" rel="noreferrer" className="hover:text-accent-gold" aria-label="Instagram">
               <Instagram size={16} />
             </a>
-            <a href="https://t.me/+77761764131" target="_blank" rel="noreferrer" className="hover:text-accent-gold">
+            <a href="https://t.me/+77761764131" target="_blank" rel="noreferrer" className="hover:text-accent-gold" aria-label="Telegram">
               <Send size={16} />
             </a>
           </div>
@@ -167,7 +211,7 @@ const Navbar = () => {
             : 'top-0 bg-transparent lg:top-10'
         }`}
       >
-        <div className="container-custom flex h-20 items-center justify-between gap-3 lg:h-[86px]">
+        <div className="container-custom flex h-20 items-center justify-between gap-3 lg:h-[84px]">
           <Link to="/" onClick={handleLogoClick} className="flex shrink-0 items-center gap-3">
             <span
               className={`flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg border p-1.5 transition-all ${
@@ -178,36 +222,50 @@ const Navbar = () => {
             >
               <img src="/logo.png" alt={t('brand.name')} className="h-full w-full object-contain" />
             </span>
-            <span className="hidden min-w-0 max-w-[220px] sm:block lg:max-w-[260px] 2xl:max-w-none">
-              <span
-                className={`block truncate font-serif text-base font-extrabold leading-tight 2xl:text-lg ${
-                  isLight ? 'text-primary-dark' : 'text-white'
-                }`}
-              >
+            <span className="hidden min-w-0 max-w-[250px] sm:block xl:max-w-[280px]">
+              <span className={`block truncate font-serif text-base font-extrabold leading-tight xl:text-lg ${isLight ? 'text-primary-dark' : 'text-white'}`}>
                 {t('brand.name')}
               </span>
-              <span className="mt-0.5 block truncate text-[9px] font-extrabold uppercase tracking-[0.22em] text-accent-gold 2xl:text-[10px] 2xl:tracking-[0.28em]">
+              <span className="mt-0.5 block truncate text-[9px] font-extrabold uppercase tracking-[0.22em] text-accent-gold xl:text-[10px]">
                 {t('brand.type')}
               </span>
             </span>
           </Link>
 
           <nav className="hidden items-center gap-0.5 xl:flex">
-            {navItems.map((item) => (
-              <div key={item.path} className="group relative">
-                <NavLink
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `flex min-h-[44px] items-center gap-1 whitespace-nowrap rounded-lg px-2 text-[10px] font-extrabold uppercase tracking-[0.04em] transition-all 2xl:px-2.5 2xl:text-[11px] ${
-                      isLight ? 'text-slate-700 hover:bg-primary/5' : 'text-white/90 hover:bg-white/10'
-                    } ${isActive ? 'text-accent-gold' : ''}`
-                  }
-                >
-                  {item.label}
-                  {item.children && <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />}
-                </NavLink>
-              </div>
-            ))}
+            {navItems.map((item) => {
+              const active = isItemActive(item);
+              return (
+                <div key={item.path} className="group relative">
+                  <NavLink
+                    to={item.path}
+                    end={item.path === '/'}
+                    className={() =>
+                      `flex min-h-[42px] items-center gap-1 whitespace-nowrap rounded-lg px-2.5 text-sm font-extrabold uppercase tracking-[0.02em] transition-all 2xl:px-3 ${
+                        isLight ? 'text-slate-700 hover:bg-primary/5' : 'text-white/90 hover:bg-white/10'
+                      } ${active ? (isLight ? 'text-primary-dark' : 'text-accent-gold') : ''}`
+                    }
+                  >
+                    {item.label}
+                    {item.children && <ChevronDown size={14} className="transition-transform group-hover:rotate-180" />}
+                  </NavLink>
+
+                  {item.children && (
+                    <div className="invisible absolute left-0 top-full z-[95] mt-2 w-64 translate-y-2 rounded-lg border border-slate-200 bg-white p-2 opacity-0 shadow-[0_24px_80px_rgba(5,24,17,0.18)] transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.path}
+                          to={child.path}
+                          className="block rounded-md px-4 py-3 text-sm font-bold leading-5 text-slate-600 hover:bg-accent-lightGold hover:text-primary-dark"
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </nav>
 
           <div className="flex shrink-0 items-center gap-2">
@@ -215,7 +273,7 @@ const Navbar = () => {
               type="button"
               onClick={() => setSearchOpen(true)}
               aria-label={t('common.search')}
-              className={`hidden h-11 w-11 items-center justify-center rounded-lg 2xl:flex ${
+              className={`hidden h-11 w-11 items-center justify-center rounded-lg lg:flex ${
                 isLight ? 'text-slate-700 hover:bg-primary/5' : 'text-white hover:bg-white/10'
               }`}
             >
@@ -243,8 +301,7 @@ const Navbar = () => {
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 8 }}
-                    className="premium-card absolute right-0 top-full mt-2 w-36 overflow-hidden p-1.5"
-                    style={{ zIndex: 100 }}
+                    className="premium-card absolute right-0 top-full z-[100] mt-2 w-40 overflow-hidden p-1.5"
                   >
                     {languages.map((language) => (
                       <button
@@ -272,7 +329,7 @@ const Navbar = () => {
               className={`flex h-11 w-11 items-center justify-center rounded-lg xl:hidden ${
                 isLight ? 'bg-primary/5 text-primary' : 'bg-white/10 text-white backdrop-blur-xl'
               }`}
-              aria-label="Open menu"
+              aria-label={t('common.open_menu')}
             >
               <Menu size={23} />
             </button>
@@ -295,6 +352,7 @@ const Navbar = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 28, stiffness: 240 }}
+              dir="ltr"
               className="safe-bottom ml-auto flex h-full w-full max-w-sm flex-col overflow-hidden bg-white shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
@@ -307,7 +365,7 @@ const Navbar = () => {
                   type="button"
                   onClick={() => setMenuOpen(false)}
                   className="rounded-lg p-2 text-primary transition-colors hover:bg-slate-100"
-                  aria-label="Close menu"
+                  aria-label={t('common.close')}
                 >
                   <X size={20} />
                 </button>
@@ -316,20 +374,14 @@ const Navbar = () => {
               <div className="flex-1 overflow-y-auto">
                 <nav className="border-b border-slate-100">
                   {navItems.map((item) => (
-                    <MobileMenuAccordion
-                      key={item.path}
-                      item={item}
-                      onNavigate={() => {
-                        setMenuOpen(false);
-                      }}
-                    />
+                    <MobileMenuAccordion key={item.path} item={item} onNavigate={() => setMenuOpen(false)} />
                   ))}
                 </nav>
               </div>
 
               <div className="space-y-3 border-t border-slate-100 bg-slate-50 p-4">
                 <Link
-                  to="/admission"
+                  to="/admission#application"
                   className="flex items-center justify-center rounded-lg bg-accent-gold py-2.5 text-sm font-bold text-primary-dark transition-colors hover:bg-accent-gold/90"
                   onClick={() => setMenuOpen(false)}
                 >
@@ -347,6 +399,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            dir="ltr"
             className="fixed right-4 top-24 z-[110] w-[calc(100vw-2rem)] max-w-xl sm:right-6 lg:right-8 lg:top-28"
           >
             <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-[0_24px_80px_rgba(5,24,17,0.22)]">

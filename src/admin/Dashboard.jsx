@@ -1,160 +1,161 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link, useOutletContext } from 'react-router-dom';
 import { collection, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
-import { ArrowRight, Bot, Clock, Inbox, MessageSquare, Newspaper, TrendingUp } from 'lucide-react';
+import { ArrowRight, Clock, Image, Inbox, MessageSquare, Newspaper, Plus, Settings } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { db, isFirebaseConfigured } from '../firebase/config';
 import { formatDate } from '../utils/formatDate';
 
-const StatCard = ({ title, value, icon: Icon, tone, to }) => (
-  <Link to={to} className="premium-card p-5 block hover:shadow-xl transition-shadow duration-200">
-    <div className={`mb-5 flex h-12 w-12 items-center justify-center rounded-lg ${tone}`}>
-      <Icon size={23} />
+const toMs = (value) => {
+  if (!value) return 0;
+  if (typeof value.toMillis === 'function') return value.toMillis();
+  if (typeof value.toDate === 'function') return value.toDate().getTime();
+  return new Date(value).getTime() || 0;
+};
+
+const isToday = (value) => {
+  const date = new Date(toMs(value));
+  const today = new Date();
+  return date.toDateString() === today.toDateString();
+};
+
+const StatCard = ({ title, value, icon: Icon, tone, to, sub }) => (
+  <Link to={to} className="premium-card block p-5 hover:shadow-xl">
+    <div className="flex items-start justify-between gap-4">
+      <div>
+        <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">{title}</p>
+        <p className="mt-2 font-serif text-3xl font-extrabold text-primary-dark">{value}</p>
+        {sub && <p className="mt-1 text-xs font-bold text-slate-400">{sub}</p>}
+      </div>
+      <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${tone}`}>
+        <Icon size={23} />
+      </div>
     </div>
-    <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">{title}</p>
-    <p className="mt-2 font-serif text-3xl font-extrabold text-primary-dark">{value}</p>
   </Link>
 );
 
+const RecentList = ({ title, items, empty, to, nameKey }) => {
+  const { t, i18n } = useTranslation();
+  return (
+    <div className="premium-card overflow-hidden">
+      <div className="flex items-center justify-between border-b border-slate-100 p-5">
+        <h2 className="text-xl font-bold text-primary-dark">{title}</h2>
+        <Link to={to} className="text-sm font-extrabold text-primary hover:text-accent-gold">{t('common.all')}</Link>
+      </div>
+      <div className="divide-y divide-slate-100">
+        {items.length ? items.map((item) => (
+          <Link key={item.id} to={to} className="flex items-center justify-between gap-4 p-4 hover:bg-slate-50">
+            <div className="min-w-0">
+              <p className="truncate font-bold text-primary-dark">{item[nameKey] || item.fullName || item.name}</p>
+              <p className="truncate text-sm text-slate-500">{item.program || item.subject || item.message}</p>
+            </div>
+            <span className="shrink-0 text-xs font-semibold text-slate-400">{formatDate(item.createdAt, i18n.language)}</span>
+          </Link>
+        )) : (
+          <div className="p-8 text-center text-sm font-semibold text-slate-400">{empty}</div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const Dashboard = () => {
   const { t, i18n } = useTranslation();
-  const [stats, setStats] = useState({ applications: 0, inquiries: 0, news: 0, assistant: 0 });
-  const [recent, setRecent] = useState([]);
+  const context = useOutletContext();
+  const notifications = context?.notifications || [];
+  const [stats, setStats] = useState({ applications: [], inquiries: [], news: [], gallery: [] });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
-      const localCount = (key) => {
-        try {
-          return JSON.parse(window.localStorage.getItem(`syganaki-${key}`) || '[]').length;
-        } catch {
-          return 0;
-        }
-      };
+      const local = (key) => JSON.parse(window.localStorage.getItem(`syganaki-${key}`) || '[]').filter((item) => !item.deleted && !item.archived);
       setStats({
-        applications: localCount('applications'),
-        inquiries: localCount('inquiries'),
-        news: localCount('news'),
-        assistant: 3,
+        applications: local('applications'),
+        inquiries: local('inquiries'),
+        news: local('news'),
+        gallery: local('gallery'),
       });
-      const localApps = JSON.parse(window.localStorage.getItem('syganaki-applications') || '[]');
-      setRecent(localApps.slice(0, 5));
       setLoading(false);
       return;
     }
 
-    const unsubApps = onSnapshot(collection(db, 'applications'), (snap) => {
-      setStats(prev => ({ ...prev, applications: snap.size }));
+    const collections = ['applications', 'inquiries', 'news', 'gallery'];
+    const unsubscribes = collections.map((name) => {
+      const q = query(collection(db, name), orderBy('createdAt', 'desc'), limit(80));
+      return onSnapshot(q, (snapshot) => {
+        setStats((current) => ({
+          ...current,
+          [name]: snapshot.docs.map((item) => ({ id: item.id, ...item.data() })).filter((item) => !item.deleted && !item.archived),
+        }));
+        setLoading(false);
+      });
     });
 
-    const unsubInquiries = onSnapshot(collection(db, 'inquiries'), (snap) => {
-      setStats(prev => ({ ...prev, inquiries: snap.size }));
-    });
-
-    const unsubNews = onSnapshot(collection(db, 'news'), (snap) => {
-      setStats(prev => ({ ...prev, news: snap.size }));
-    });
-
-    const unsubAssistant = onSnapshot(collection(db, 'assistantFaq'), (snap) => {
-      setStats(prev => ({ ...prev, assistant: snap.size }));
-    });
-
-    const qRecent = query(collection(db, 'applications'), orderBy('createdAt', 'desc'), limit(5));
-    const unsubRecent = onSnapshot(qRecent, (snap) => {
-      setRecent(snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: formatDate(doc.data().createdAt, i18n.language)
-      })));
-      setLoading(false);
-    });
-
-    return () => {
-      unsubApps();
-      unsubInquiries();
-      unsubNews();
-      unsubAssistant();
-      unsubRecent();
-    };
+    return () => unsubscribes.forEach((unsubscribe) => unsubscribe());
   }, [i18n.language]);
 
+  const unreadApplications = notifications.filter((item) => item.type === 'application' && !item.read).length;
+  const unreadInquiries = notifications.filter((item) => item.type === 'message' && !item.read).length;
+
   const cards = [
-    { title: t('admin.applications'), value: stats.applications, icon: Inbox, tone: 'bg-primary text-white', to: '/admin/applications' },
-    { title: t('admin.inquiries'), value: stats.inquiries, icon: MessageSquare, tone: 'bg-emerald-600 text-white', to: '/admin/inquiries' },
-    { title: t('admin.news'), value: stats.news, icon: Newspaper, tone: 'bg-accent-gold text-primary-dark', to: '/admin/news' },
-    { title: t('admin.assistant'), value: stats.assistant, icon: Bot, tone: 'bg-slate-900 text-white', to: '/admin/assistant' },
+    { title: t('admin.applications'), value: stats.applications.length, icon: Inbox, tone: 'bg-primary text-white', to: '/admin/applications', sub: `${unreadApplications} ${t('admin.unread')}` },
+    { title: t('admin.inquiries'), value: stats.inquiries.length, icon: MessageSquare, tone: 'bg-emerald-600 text-white', to: '/admin/inquiries', sub: `${unreadInquiries} ${t('admin.unread')}` },
+    { title: t('admin.news'), value: stats.news.length, icon: Newspaper, tone: 'bg-accent-gold text-primary-dark', to: '/admin/news' },
+    { title: t('admin.gallery'), value: stats.gallery.length, icon: Image, tone: 'bg-slate-900 text-white', to: '/admin/gallery' },
+    { title: t('admin.today_applications', { defaultValue: 'Бүгінгі өтінімдер' }), value: stats.applications.filter((item) => isToday(item.createdAt)).length, icon: Clock, tone: 'bg-blue-600 text-white', to: '/admin/applications' },
+    { title: t('admin.today_inquiries', { defaultValue: 'Бүгінгі сұраныстар' }), value: stats.inquiries.filter((item) => isToday(item.createdAt)).length, icon: Clock, tone: 'bg-amber-500 text-primary-dark', to: '/admin/inquiries' },
+  ];
+
+  const recentApplications = useMemo(() => stats.applications.slice(0, 5), [stats.applications]);
+  const recentInquiries = useMemo(() => stats.inquiries.slice(0, 5), [stats.inquiries]);
+
+  const quickActions = [
+    ['/admin/news', t('admin.add_news'), Newspaper],
+    ['/admin/programs', t('admin.add_program', { defaultValue: 'Бағдарлама қосу' }), Plus],
+    ['/admin/gallery', t('admin.add_gallery_photo', { defaultValue: 'Галереяға фото қосу' }), Image],
+    ['/admin/content?tab=contacts', t('admin.change_contacts', { defaultValue: 'Контакт өзгерту' }), Settings],
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="premium-card bg-primary-dark p-6 text-white">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-accent-gold">{t('admin.dashboard')}</p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {quickActions.map(([to, label, Icon]) => (
+              <Link key={to} to={to} className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm font-bold text-white hover:bg-white hover:text-primary-dark">
+                <Icon size={16} />
+                {label}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card) => <StatCard key={card.title} {...card} />)}
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
-        <div className="premium-card overflow-hidden">
-          <div className="flex items-center justify-between border-b border-slate-100 p-5">
-            <h2 className="text-xl font-bold">{t('admin.applications')}</h2>
-            <Link to="/admin/applications" className="text-sm font-extrabold text-primary hover:text-accent-gold">
-              {t('common.all')}
-            </Link>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-[680px] w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-500">
-                <tr>
-                  <th className="px-5 py-4">{t('admission.name')}</th>
-                  <th className="px-5 py-4">{t('admission.program')}</th>
-                  <th className="px-5 py-4">{t('common.date')}</th>
-                  <th className="px-5 py-4">{t('admin.status')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {loading ? (
-                  <tr><td colSpan="4" className="px-5 py-10 text-center text-slate-500">{t('common.loading')}</td></tr>
-                ) : recent.length ? (
-                  recent.map((item) => (
-                    <tr key={item.id}>
-                      <td className="px-5 py-4 font-bold text-primary-dark">{item.fullName}</td>
-                      <td className="px-5 py-4 text-slate-600">{item.program}</td>
-                      <td className="px-5 py-4 text-slate-500">{item.date || formatDate(item.createdAt, i18n.language)}</td>
-                      <td className="px-5 py-4">
-                        <span className={`rounded-full px-3 py-1 text-xs font-bold ${
-                          (item.status === 'accepted' || item.status === 'contacted') ? 'bg-emerald-50 text-emerald-700' :
-                          item.status === 'rejected' ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
-                        }`}>
-                          {item.status ? t(`admin.${item.status === 'contacted' ? 'processed' : item.status}`) : t('admin.new')}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr><td colSpan="4" className="px-5 py-10 text-center text-slate-500">{t('common.not_found')}</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="premium-card bg-primary-dark p-6 text-white">
-            <TrendingUp className="mb-5 text-accent-gold" size={30} />
-            <h2 className="text-xl font-bold text-white">{t('admin.dashboard')}</h2>
-            <p className="mt-3 text-sm leading-7 text-white/65">{t('admin.production_note')}</p>
-            <Link to="/admin/news" className="btn-gold mt-6 w-full !text-primary-dark">
-              {t('admin.add_news', { defaultValue: `${t('admin.add')} ${t('admin.news')}` })}
-              <ArrowRight size={16} />
-            </Link>
-          </div>
-          <div className="premium-card p-6 border-l-4 border-accent-gold">
-            <Clock className="mb-4 text-accent-gold" size={28} />
-            <h3 className="font-bold">{t('admin.realtime')}</h3>
-            <p className="mt-2 text-sm leading-7 text-slate-600">
-              {t('admin.realtime_desc', { defaultValue: 'Система обновляется в реальном времени. Новые заявки появятся здесь мгновенно.' })}
-            </p>
-          </div>
-        </div>
+      <div className="grid gap-6 xl:grid-cols-2">
+        {loading ? (
+          <>
+            <div className="h-80 animate-pulse rounded-lg bg-white" />
+            <div className="h-80 animate-pulse rounded-lg bg-white" />
+          </>
+        ) : (
+          <>
+            <RecentList title={t('admin.recent_applications', { defaultValue: 'Соңғы өтінімдер' })} items={recentApplications} empty={t('common.not_found')} to="/admin/applications" nameKey="fullName" />
+            <RecentList title={t('admin.recent_inquiries', { defaultValue: 'Соңғы сұраныстар' })} items={recentInquiries} empty={t('common.not_found')} to="/admin/inquiries" nameKey="name" />
+          </>
+        )}
       </div>
+
+      <Link to="/admin/notifications" className="btn-ghost">
+        {t('admin.notifications')}
+        <ArrowRight size={16} />
+      </Link>
     </div>
   );
 };

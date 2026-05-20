@@ -90,7 +90,10 @@ const NewsManager = () => {
     event.preventDefault();
     setSaving(true);
     try {
-      await saveNewsArticle(formData, editingId);
+      await saveNewsArticle({
+        ...formData,
+        content: formData.content?.trim() ? formData.content : formData.excerpt,
+      }, editingId);
       setModalOpen(false);
       await loadNews();
     } finally {
@@ -177,7 +180,13 @@ const NewsManager = () => {
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="block">
                     <span className="mb-2 block text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">{t('admin.title_field')}</span>
-                    <input value={formData.title} onChange={(event) => setFormData({ ...formData, title: event.target.value })} className="admin-input" required />
+                    <input
+                      value={formData.title}
+                      onChange={(event) => setFormData({ ...formData, title: event.target.value })}
+                      className="admin-input"
+                      placeholder={t('admin.news_title_ph', { defaultValue: 'Жаңалық тақырыбын енгізіңіз' })}
+                      required
+                    />
                   </label>
                   <label className="block">
                     <span className="mb-2 block text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">{t('common.category')}</span>
@@ -219,20 +228,50 @@ const NewsManager = () => {
                 </label>
 
                 {formData.image && (
-                  <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                    <img src={formData.image} alt="" className="aspect-[16/7] w-full object-cover" />
+                  <div className="overflow-hidden rounded-lg border border-slate-200 bg-slate-50 shadow-inner">
+                    <img src={formData.image} alt="" className="aspect-[16/8] w-full object-cover" />
                   </div>
                 )}
 
                 <label className="block">
                   <span className="mb-2 block text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">{t('admin.excerpt')}</span>
-                  <textarea value={formData.excerpt} onChange={(event) => setFormData({ ...formData, excerpt: event.target.value })} className="admin-input min-h-[90px] resize-none" required />
+                  <textarea
+                    value={formData.excerpt}
+                    onChange={(event) => setFormData({ ...formData, excerpt: event.target.value })}
+                    className="admin-input min-h-[90px] resize-y leading-7"
+                    placeholder={t('admin.excerpt_ph', { defaultValue: 'Қысқаша мәтінді енгізіңіз...' })}
+                    required
+                  />
                 </label>
 
                 <label className="block">
-                  <span className="mb-2 block text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">{t('admin.content_html')}</span>
-                  <textarea value={formData.content} onChange={(event) => setFormData({ ...formData, content: event.target.value })} className="admin-input min-h-[180px] resize-none font-mono" required />
+                  <span className="mb-2 block text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">{t('admin.full_text', { defaultValue: 'Толық мәтін' })}</span>
+                  <textarea
+                    value={formData.content}
+                    onChange={(event) => setFormData({ ...formData, content: event.target.value })}
+                    className="admin-input min-h-[180px] resize-y leading-7"
+                    placeholder={t('admin.full_text_ph', { defaultValue: 'Жаңалық мәтінін енгізіңіз...' })}
+                  />
+                  <p className="mt-2 text-xs font-semibold text-slate-400">
+                    {t('admin.full_text_helper', { defaultValue: 'Бұл мәтін жаңалықтың толық бетінде көрсетіледі.' })}
+                  </p>
                 </label>
+
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
+                  <p className="mb-3 text-xs font-extrabold uppercase tracking-[0.14em] text-slate-500">
+                    {t('admin.preview', { defaultValue: 'Алдын ала көру' })}
+                  </p>
+                  <article className="overflow-hidden rounded-lg bg-white shadow-sm">
+                    {formData.image && <img src={formData.image} alt="" className="aspect-[16/7] w-full object-cover" />}
+                    <div className="p-4">
+                      <span className="rounded-full bg-accent-lightGold px-3 py-1 text-xs font-bold text-primary">{formData.category || t('common.category')}</span>
+                      <h3 className="mt-3 font-serif text-2xl font-bold text-primary-dark">{formData.title || t('admin.title_field')}</h3>
+                      <p className="mt-2 text-sm leading-7 text-slate-600 whitespace-pre-wrap">
+                        {formData.content || formData.excerpt || t('admin.full_text_ph', { defaultValue: 'Жаңалық мәтінін енгізіңіз...' })}
+                      </p>
+                    </div>
+                  </article>
+                </div>
 
                 <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row">
                   <button type="button" onClick={() => setModalOpen(false)} className="btn-ghost flex-1">

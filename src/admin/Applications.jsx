@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { CheckCircle2, Clock, MessageCircle, Phone, Search, Trash2, X, XCircle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { db, isFirebaseConfigured } from '../firebase/config';
@@ -27,7 +27,7 @@ const Applications = () => {
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
-      setItems(readLocal());
+      setItems(readLocal().filter((item) => !item.archived && !item.deleted));
       setLoading(false);
       return;
     }
@@ -38,7 +38,7 @@ const Applications = () => {
         id: item.id,
         ...item.data(),
         date: formatDate(item.data().createdAt, i18n.language)
-      })));
+      })).filter((item) => !item.archived && !item.deleted));
       setLoading(false);
     }, (error) => {
       console.error('Error fetching applications:', error);
@@ -65,18 +65,18 @@ const Applications = () => {
     }
   };
 
-  const removeItem = async (id, e) => {
+  const archiveItem = async (id, e) => {
     e?.stopPropagation();
-    if (!window.confirm(t('admin.delete'))) return;
+    if (!window.confirm(t('admin.archive_confirm', { defaultValue: 'Архивке жіберуді растайсыз ба?' }))) return;
     if (!isFirebaseConfigured) {
-      const nextItems = items.filter((item) => item.id !== id);
+      const nextItems = items.map((item) => (item.id === id ? { ...item, archived: true } : item)).filter((item) => !item.archived);
       setItems(nextItems);
       writeLocal(nextItems);
       setSelected(null);
       return;
     }
     try {
-      await deleteDoc(doc(db, 'applications', id));
+      await updateDoc(doc(db, 'applications', id), { archived: true });
       setSelected(null);
     } catch (error) {
       console.error('Error deleting application:', error);
@@ -99,8 +99,10 @@ const Applications = () => {
   const badge = (value = 'new') => {
     const map = {
       new: ['bg-blue-50 text-blue-700', Clock, t('admin.new')],
+      viewed: ['bg-slate-100 text-slate-700', Clock, t('admin.viewed', { defaultValue: 'Қаралды' })],
       contacted: ['bg-amber-50 text-amber-700', Phone, t('admin.processed')],
       processed: ['bg-amber-50 text-amber-700', Phone, t('admin.processed')],
+      completed: ['bg-emerald-50 text-emerald-700', CheckCircle2, t('admin.completed', { defaultValue: 'Аяқталды' })],
       accepted: ['bg-emerald-50 text-emerald-700', CheckCircle2, t('admin.accepted')],
       rejected: ['bg-red-50 text-red-700', XCircle, t('admin.rejected')],
     };
@@ -123,7 +125,9 @@ const Applications = () => {
         <select value={status} onChange={(event) => setStatus(event.target.value)} className="admin-input lg:w-56">
           <option value="all">{t('common.all')}</option>
           <option value="new">{t('admin.new')}</option>
+          <option value="viewed">{t('admin.viewed', { defaultValue: 'Қаралды' })}</option>
           <option value="contacted">{t('admin.processed')}</option>
+          <option value="completed">{t('admin.completed', { defaultValue: 'Аяқталды' })}</option>
           <option value="accepted">{t('admin.accepted')}</option>
           <option value="rejected">{t('admin.rejected')}</option>
         </select>
@@ -175,9 +179,11 @@ const Applications = () => {
                         >
                           <MessageCircle size={16} />
                         </a>
+                        <button type="button" onClick={(e) => changeStatus(item.id, 'viewed', e)} className="rounded-lg px-2 py-1 text-xs font-bold text-slate-600 hover:bg-slate-100">{t('admin.viewed', { defaultValue: 'Қаралды' })}</button>
+                        <button type="button" onClick={(e) => changeStatus(item.id, 'contacted', e)} className="rounded-lg px-2 py-1 text-xs font-bold text-amber-700 hover:bg-amber-50">{t('admin.contacted', { defaultValue: 'Байланысты' })}</button>
                         <button type="button" onClick={(e) => changeStatus(item.id, 'accepted', e)} className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50"><CheckCircle2 size={16} /></button>
                         <button type="button" onClick={(e) => changeStatus(item.id, 'rejected', e)} className="rounded-lg p-2 text-red-600 hover:bg-red-50"><XCircle size={16} /></button>
-                        <button type="button" onClick={(e) => removeItem(item.id, e)} className="rounded-lg p-2 text-red-600 hover:bg-red-50"><Trash2 size={16} /></button>
+                        <button type="button" onClick={(e) => archiveItem(item.id, e)} className="rounded-lg p-2 text-red-600 hover:bg-red-50"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>
@@ -272,7 +278,7 @@ const Applications = () => {
               </button>
               <button
                 type="button"
-                onClick={(e) => removeItem(selected.id, e)}
+                onClick={(e) => archiveItem(selected.id, e)}
                 className="flex items-center justify-center rounded-xl border border-red-200 px-3 py-2.5 text-red-600 hover:bg-red-50"
               >
                 <Trash2 size={16} />

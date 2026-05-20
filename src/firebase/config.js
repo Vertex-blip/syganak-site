@@ -14,17 +14,17 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
-const app = initializeApp(firebaseConfig);
+export const firebaseApp = initializeApp(firebaseConfig);
 
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
+export const db = getFirestore(firebaseApp);
+export const auth = getAuth(firebaseApp);
+export const storage = getStorage(firebaseApp);
 
 // Optional: Initialize Analytics only if supported in the environment (e.g. browser)
 export let analytics = null;
 isSupported().then((supported) => {
   if (supported) {
-    analytics = getAnalytics(app);
+    analytics = getAnalytics(firebaseApp);
   }
 });
 

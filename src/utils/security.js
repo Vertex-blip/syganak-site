@@ -24,15 +24,34 @@ export const canSubmitForm = (key, intervalMs = 60_000) => {
   return true;
 };
 
+export const normalizeKazakhstanPhone = (value) => {
+  const digits = String(value || '').replace(/\D/g, '');
+  if (!digits) return '';
+
+  let normalized = digits;
+  if (normalized.length === 10) normalized = `7${normalized}`;
+  if (normalized.length === 11 && normalized.startsWith('8')) {
+    normalized = `7${normalized.slice(1)}`;
+  }
+
+  return normalized.length === 11 && normalized.startsWith('7')
+    ? `+${normalized}`
+    : String(value || '').trim();
+};
+
+export const isValidKazakhstanPhone = (value) => /^\+7\d{10}$/.test(normalizeKazakhstanPhone(value));
+
+export const isHoneypotFilled = (payload = {}) =>
+  Boolean(String(payload.website || payload.company || payload.url || '').trim());
+
 export const validateImageFile = (file) => {
-  const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const allowedExts = /\.(jpe?g|png|webp)$/i;
   const maxSize = 12 * 1024 * 1024;
-  if (!file || !allowed.includes(file.type)) {
-    throw new Error('Invalid image type');
-  }
-  if (file.size > maxSize) {
-    throw new Error('Image is too large');
-  }
+
+  const typeOk = file && (allowedTypes.includes(file.type) || allowedExts.test(file.name));
+  if (!typeOk) throw new Error('Invalid image type');
+  if (file.size > maxSize) throw new Error('Image is too large');
 };
 
 export const sanitizeHtml = (html) => {

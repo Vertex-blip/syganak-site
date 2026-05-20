@@ -34,27 +34,31 @@ service cloud.firestore {
     }
 
     function validStatus(value) {
-      return value in ['new', 'contacted', 'processed', 'accepted', 'rejected'];
+      return value in ['new', 'viewed', 'contacted', 'processed', 'completed', 'accepted', 'rejected'];
     }
 
     function validApplicationCreate() {
-      return request.resource.data.keys().hasOnly(['fullName', 'phone', 'program', 'message', 'status', 'createdAt'])
+      return request.resource.data.keys().hasOnly(['fullName', 'phone', 'program', 'message', 'status', 'createdAt', 'source', 'isRead'])
         && isShortText(request.resource.data.fullName, 120)
         && isShortText(request.resource.data.phone, 40)
         && isShortText(request.resource.data.program, 120)
         && (!('message' in request.resource.data) || isOptionalText(request.resource.data.message, 1000))
         && request.resource.data.status == 'new'
+        && (!('source' in request.resource.data) || request.resource.data.source == 'website')
+        && (!('isRead' in request.resource.data) || request.resource.data.isRead == false)
         && request.resource.data.createdAt == request.time;
     }
 
     function validInquiryCreate() {
-      return request.resource.data.keys().hasOnly(['name', 'phone', 'subject', 'message', 'type', 'status', 'createdAt'])
+      return request.resource.data.keys().hasOnly(['name', 'phone', 'subject', 'message', 'type', 'status', 'createdAt', 'source', 'isRead'])
         && isShortText(request.resource.data.name, 120)
         && isShortText(request.resource.data.phone, 40)
         && isShortText(request.resource.data.subject, 120)
         && isShortText(request.resource.data.message, 1200)
         && (!('type' in request.resource.data) || isOptionalText(request.resource.data.type, 60))
         && request.resource.data.status == 'new'
+        && (!('source' in request.resource.data) || request.resource.data.source == 'website')
+        && (!('isRead' in request.resource.data) || request.resource.data.isRead == false)
         && request.resource.data.createdAt == request.time;
     }
 
@@ -70,12 +74,14 @@ service cloud.firestore {
     }
 
     function validProgramWrite() {
-      return request.resource.data.keys().hasOnly(['title', 'duration', 'format', 'subjects', 'opportunities', 'outcomes', 'structure', 'books', 'image', 'desc', 'deleted', 'createdAt', 'updatedAt'])
+      return request.resource.data.keys().hasOnly(['title', 'duration', 'format', 'subjects', 'opportunities', 'outcomes', 'structure', 'books', 'image', 'desc', 'fullDesc', 'order', 'deleted', 'createdAt', 'updatedAt'])
         && (!('title' in request.resource.data) || isOptionalText(request.resource.data.title, 180))
         && (!('duration' in request.resource.data) || isOptionalText(request.resource.data.duration, 80))
         && (!('format' in request.resource.data) || isOptionalText(request.resource.data.format, 160))
         && (!('image' in request.resource.data) || isOptionalText(request.resource.data.image, 500))
         && (!('desc' in request.resource.data) || isOptionalText(request.resource.data.desc, 1600))
+        && (!('fullDesc' in request.resource.data) || isOptionalText(request.resource.data.fullDesc, 4000))
+        && (!('order' in request.resource.data) || request.resource.data.order is int || request.resource.data.order is float || request.resource.data.order is string)
         && (!('deleted' in request.resource.data) || request.resource.data.deleted is bool);
     }
 
@@ -135,6 +141,17 @@ service cloud.firestore {
         && (!('read' in request.resource.data) || request.resource.data.read is bool);
     }
 
+    match /adminUsers/{uid}/notificationTokens/{document} {
+      allow read, delete: if isAdmin() && request.auth.uid == uid;
+      allow create, update: if isAdmin() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['token', 'uid', 'email', 'userAgent', 'enabled', 'createdAt', 'updatedAt'])
+        && request.resource.data.uid == uid
+        && (!('token' in request.resource.data) || isShortText(request.resource.data.token, 300))
+        && (!('email' in request.resource.data) || isOptionalText(request.resource.data.email, 180))
+        && (!('userAgent' in request.resource.data) || isOptionalText(request.resource.data.userAgent, 500))
+        && (!('enabled' in request.resource.data) || request.resource.data.enabled is bool);
+    }
+
     match /siteTexts/{document} {
       allow read: if true;
       allow create, update: if isAdmin()
@@ -149,16 +166,18 @@ service cloud.firestore {
       allow create: if validApplicationCreate();
       allow read, delete: if isAdmin();
       allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['status'])
-        && validStatus(request.resource.data.status);
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['status', 'archived'])
+        && (!request.resource.data.diff(resource.data).changedKeys().hasAny(['status']) || validStatus(request.resource.data.status))
+        && (!request.resource.data.diff(resource.data).changedKeys().hasAny(['archived']) || request.resource.data.archived is bool);
     }
 
     match /inquiries/{document} {
       allow create: if validInquiryCreate();
       allow read, delete: if isAdmin();
       allow update: if isAdmin()
-        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['status'])
-        && validStatus(request.resource.data.status);
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['status', 'archived'])
+        && (!request.resource.data.diff(resource.data).changedKeys().hasAny(['status']) || validStatus(request.resource.data.status))
+        && (!request.resource.data.diff(resource.data).changedKeys().hasAny(['archived']) || request.resource.data.archived is bool);
     }
 
     match /{document=**} {

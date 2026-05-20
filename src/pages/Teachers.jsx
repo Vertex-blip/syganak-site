@@ -40,6 +40,13 @@ const Teachers = () => {
     { icon: Award, value: phdCount, label: t('teachers.phd') },
     { icon: GraduationCap, value: internationalCount, label: t('teachers.international', { defaultValue: 'International faculty' }) },
   ];
+  const getTeacherBio = (teacher) =>
+    teacher.bio ||
+    t('teachers.bio_fallback', {
+      role: teacher.role,
+      degree: teacher.degree,
+      country: teacher.country,
+    });
 
   return (
     <div className="overflow-hidden bg-background">
@@ -102,6 +109,7 @@ const Teachers = () => {
                     </div>
                     <h3 className="text-xl font-bold text-primary-dark">{teacher.name}</h3>
                     <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{teacher.role}</p>
+                    <p className="mt-3 text-sm leading-7 text-slate-600">{getTeacherBio(teacher)}</p>
 
                     {teacher.education?.length > 0 && (
                       <div className="mt-5 border-t border-slate-100 pt-5">

@@ -6,6 +6,29 @@ import { useTranslation } from 'react-i18next';
 import { fetchNewsArticle } from '../services/newsService';
 import { getInstituteContent } from '../data/instituteContent';
 import { sanitizeHtml } from '../utils/security';
+import { SITE_URL } from '../config/site';
+
+const setMeta = (selector, attr, value) => {
+  if (!value) return;
+  let element = document.head.querySelector(selector);
+  if (!element) {
+    element = document.createElement('meta');
+    const match = selector.match(/\[(name|property)="([^"]+)"\]/);
+    if (match) element.setAttribute(match[1], match[2]);
+    document.head.appendChild(element);
+  }
+  element.setAttribute(attr, value);
+};
+
+const setCanonical = (href) => {
+  let element = document.head.querySelector('link[rel="canonical"]');
+  if (!element) {
+    element = document.createElement('link');
+    element.setAttribute('rel', 'canonical');
+    document.head.appendChild(element);
+  }
+  element.setAttribute('href', href);
+};
 
 const NewsDetail = () => {
   const { id } = useParams();
@@ -29,6 +52,27 @@ const NewsDetail = () => {
       active = false;
     };
   }, [fallback, id, i18n.language]);
+
+  useEffect(() => {
+    if (!article) return;
+    const canonicalBase = SITE_URL || window.location.origin;
+    const title = `${article.title} | ${t('nav.news')}`;
+    const description = article.excerpt || t('news.subtitle');
+    const canonical = `${canonicalBase}/news/${article.id}`;
+    const image = article.image?.startsWith('http') ? article.image : `${canonicalBase}${article.image || institute.baseImages.seminar}`;
+
+    document.title = title;
+    setMeta('meta[name="description"]', 'content', description);
+    setMeta('meta[property="og:title"]', 'content', title);
+    setMeta('meta[property="og:description"]', 'content', description);
+    setMeta('meta[property="og:type"]', 'content', 'article');
+    setMeta('meta[property="og:url"]', 'content', canonical);
+    setMeta('meta[property="og:image"]', 'content', image);
+    setMeta('meta[name="twitter:title"]', 'content', title);
+    setMeta('meta[name="twitter:description"]', 'content', description);
+    setMeta('meta[name="twitter:image"]', 'content', image);
+    setCanonical(canonical);
+  }, [article, institute.baseImages.seminar, t]);
 
   if (loading) {
     return (

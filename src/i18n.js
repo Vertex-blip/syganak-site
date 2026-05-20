@@ -34,17 +34,19 @@ i18n
 
 i18n.on('languageChanged', (lng) => {
   if (typeof document !== 'undefined') {
+    const direction = lng === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lng === 'kz' ? 'kk' : lng;
-    document.documentElement.dir = 'ltr';
-    document.body.dir = 'ltr';
+    document.documentElement.dir = direction;
+    document.body.dir = direction;
     document.body.dataset.lang = lng;
   }
 });
 
 if (typeof document !== 'undefined') {
+  const direction = i18n.language === 'ar' ? 'rtl' : 'ltr';
   document.documentElement.lang = i18n.language === 'kz' ? 'kk' : i18n.language;
-  document.documentElement.dir = 'ltr';
-  document.body.dir = 'ltr';
+  document.documentElement.dir = direction;
+  document.body.dir = direction;
   document.body.dataset.lang = i18n.language;
 }
 

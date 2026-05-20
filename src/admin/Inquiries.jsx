@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { collection, deleteDoc, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
+import { collection, doc, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
 import { CheckCircle2, Clock, MessageCircle, Phone, Search, Trash2, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { db, isFirebaseConfigured } from '../firebase/config';
@@ -27,7 +27,7 @@ const Inquiries = () => {
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
-      setItems(readLocal());
+      setItems(readLocal().filter((item) => !item.archived && !item.deleted));
       setLoading(false);
       return;
     }
@@ -38,7 +38,7 @@ const Inquiries = () => {
         id: item.id,
         ...item.data(),
         date: formatDate(item.data().createdAt, i18n.language)
-      })));
+      })).filter((item) => !item.archived && !item.deleted));
       setLoading(false);
     }, (error) => {
       console.error('Error fetching inquiries:', error);
@@ -65,18 +65,18 @@ const Inquiries = () => {
     }
   };
 
-  const removeItem = async (id, e) => {
+  const archiveItem = async (id, e) => {
     e?.stopPropagation();
-    if (!window.confirm(t('admin.delete'))) return;
+    if (!window.confirm(t('admin.archive_confirm', { defaultValue: 'Архивке жіберуді растайсыз ба?' }))) return;
     if (!isFirebaseConfigured) {
-      const nextItems = items.filter((item) => item.id !== id);
+      const nextItems = items.map((item) => (item.id === id ? { ...item, archived: true } : item)).filter((item) => !item.archived);
       setItems(nextItems);
       writeLocal(nextItems);
       setSelected(null);
       return;
     }
     try {
-      await deleteDoc(doc(db, 'inquiries', id));
+      await updateDoc(doc(db, 'inquiries', id), { archived: true });
       setSelected(null);
     } catch (error) {
       console.error('Error deleting inquiry:', error);
@@ -96,16 +96,17 @@ const Inquiries = () => {
     });
   }, [items, search, status]);
 
-  const badge = (value = 'new') =>
-    (value === 'new' || !value) ? (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
-        <Clock size={13} />{t('admin.new')}
-      </span>
-    ) : (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
-        <CheckCircle2 size={13} />{t('admin.processed')}
-      </span>
-    );
+  const badge = (value = 'new') => {
+    const map = {
+      new: ['bg-blue-50 text-blue-700', Clock, t('admin.new')],
+      viewed: ['bg-slate-100 text-slate-700', Clock, t('admin.viewed', { defaultValue: 'Қаралды' })],
+      contacted: ['bg-amber-50 text-amber-700', Phone, t('admin.contacted', { defaultValue: 'Байланысты' })],
+      processed: ['bg-amber-50 text-amber-700', Phone, t('admin.processed')],
+      completed: ['bg-emerald-50 text-emerald-700', CheckCircle2, t('admin.completed', { defaultValue: 'Аяқталды' })],
+    };
+    const [classes, Icon, label] = map[value] || map.new;
+    return <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${classes}`}><Icon size={13} />{label}</span>;
+  };
 
   return (
     <div className="space-y-5">
@@ -117,7 +118,10 @@ const Inquiries = () => {
         <select value={status} onChange={(e) => setStatus(e.target.value)} className="admin-input lg:w-56">
           <option value="all">{t('common.all')}</option>
           <option value="new">{t('admin.new')}</option>
+          <option value="viewed">{t('admin.viewed', { defaultValue: 'Қаралды' })}</option>
+          <option value="contacted">{t('admin.contacted', { defaultValue: 'Байланысты' })}</option>
           <option value="processed">{t('admin.processed')}</option>
+          <option value="completed">{t('admin.completed', { defaultValue: 'Аяқталды' })}</option>
         </select>
       </div>
 
@@ -168,8 +172,10 @@ const Inquiries = () => {
                         >
                           <MessageCircle size={16} />
                         </a>
-                        <button type="button" onClick={(e) => changeStatus(item.id, 'processed', e)} className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50"><CheckCircle2 size={16} /></button>
-                        <button type="button" onClick={(e) => removeItem(item.id, e)} className="rounded-lg p-2 text-red-600 hover:bg-red-50"><Trash2 size={16} /></button>
+                        <button type="button" onClick={(e) => changeStatus(item.id, 'viewed', e)} className="rounded-lg px-2 py-1 text-xs font-bold text-slate-600 hover:bg-slate-100">{t('admin.viewed', { defaultValue: 'Қаралды' })}</button>
+                        <button type="button" onClick={(e) => changeStatus(item.id, 'contacted', e)} className="rounded-lg px-2 py-1 text-xs font-bold text-amber-700 hover:bg-amber-50">{t('admin.contacted', { defaultValue: 'Байланысты' })}</button>
+                        <button type="button" onClick={(e) => changeStatus(item.id, 'completed', e)} className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50"><CheckCircle2 size={16} /></button>
+                        <button type="button" onClick={(e) => archiveItem(item.id, e)} className="rounded-lg p-2 text-red-600 hover:bg-red-50"><Trash2 size={16} /></button>
                       </div>
                     </td>
                   </tr>
@@ -257,7 +263,7 @@ const Inquiries = () => {
               </button>
               <button
                 type="button"
-                onClick={(e) => removeItem(selected.id, e)}
+                onClick={(e) => archiveItem(selected.id, e)}
                 className="flex items-center justify-center rounded-xl border border-red-200 px-3 py-2.5 text-red-600 hover:bg-red-50"
               >
                 <Trash2 size={16} />

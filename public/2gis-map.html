@@ -1,25 +1,64 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; }
-        .dg-widget-wrapper { width: 100% !important; height: 100% !important; border: none !important; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, Arial, sans-serif;
+      color: #09251b;
+      background: #f8fafc;
+    }
+    .map-card {
+      box-sizing: border-box;
+      display: grid;
+      place-items: center;
+      width: 100%;
+      min-height: 360px;
+      padding: 28px;
+      text-align: center;
+      background:
+        linear-gradient(135deg, rgba(6, 61, 44, 0.88), rgba(6, 61, 44, 0.62)),
+        url('/institute/official-campus-yard.jpg') center/cover;
+    }
+    .panel {
+      max-width: 520px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.94);
+      padding: 24px;
+      box-shadow: 0 24px 80px rgba(5,24,17,0.2);
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+    p {
+      margin: 12px 0 0;
+      color: #475569;
+      line-height: 1.65;
+    }
+    a {
+      display: inline-flex;
+      margin-top: 18px;
+      border-radius: 8px;
+      background: #caa45d;
+      padding: 12px 18px;
+      color: #021c14;
+      font-weight: 800;
+      text-decoration: none;
+    }
+  </style>
 </head>
 <body>
-    <a class="dg-widget-link" href="http://2gis.kz/astana/firm/70000001066292633/center/71.416744,51.125984/zoom/16">Посмотреть на карте Астаны</a>
-    <script charset="utf-8" src="https://widgets.2gis.com/js/DGWidgetLoader.js"></script>
-    <script charset="utf-8">
-        new DGWidgetLoader({
-            "width": "100%",
-            "height": "100%",
-            "borderColor": "#e2e8f0",
-            "pos": { "lat": 51.125984, "lon": 71.416744, "zoom": 16 },
-            "opt": { "city": "astana" },
-            "org": [{ "id": "70000001066292633" }]
-        });
-    </script>
+  <main class="map-card">
+    <section class="panel">
+      <h1>Институт мекенжайы</h1>
+      <p>Астана қ., Қабанбай батыр даңғылы 36/4</p>
+      <a href="https://2gis.kz/astana/geo/70000001066292633/71.416744,51.125984" target="_blank" rel="noopener noreferrer">2GIS картасында ашу</a>
+    </section>
+  </main>
 </body>
 </html>

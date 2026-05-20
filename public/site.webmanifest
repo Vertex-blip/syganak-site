@@ -1,0 +1,15 @@
+{
+  "name": "Хусамуддин ас-Сығанақи ислам институты",
+  "short_name": "ас-Сығанақи",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffdf8",
+  "theme_color": "#063d2c",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

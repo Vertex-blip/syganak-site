@@ -1,6 +1,12 @@
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '../firebase/config';
-import { canSubmitForm, sanitizeFormPayload } from '../utils/security';
+import {
+  canSubmitForm,
+  isHoneypotFilled,
+  isValidKazakhstanPhone,
+  normalizeKazakhstanPhone,
+  sanitizeFormPayload,
+} from '../utils/security';
 export { buildWhatsAppLink } from '../utils/contactLinks';
 
 const saveLocal = (collectionName, data) => {
@@ -16,30 +22,58 @@ const saveLocal = (collectionName, data) => {
 };
 
 export const saveApplication = (data) => {
+  if (isHoneypotFilled(data)) {
+    return Promise.reject(new Error('spam_detected'));
+  }
+  if (!isValidKazakhstanPhone(data.phone)) {
+    return Promise.reject(new Error('invalid_phone'));
+  }
   if (!canSubmitForm('application', 90_000)) {
     return Promise.reject(new Error('rate_limited'));
   }
-  const clean = sanitizeFormPayload(data, { fullName: 120, phone: 40, program: 120, message: 1000 });
+  const clean = sanitizeFormPayload(
+    { fullName: data.fullName, phone: normalizeKazakhstanPhone(data.phone), program: data.program, message: data.message },
+    { fullName: 120, phone: 40, program: 120, message: 1000 },
+  );
+  const payload = {
+    ...clean,
+    status: 'new',
+    source: 'website',
+    isRead: false,
+  };
   return isFirebaseConfigured
     ? addDoc(collection(db, 'applications'), {
-        ...clean,
-        status: 'new',
+        ...payload,
         createdAt: serverTimestamp(),
       })
-    : saveLocal('applications', { ...clean, status: 'new' });
+    : saveLocal('applications', payload);
 };
 
 export const saveInquiry = (data) => {
+  if (isHoneypotFilled(data)) {
+    return Promise.reject(new Error('spam_detected'));
+  }
+  if (!isValidKazakhstanPhone(data.phone)) {
+    return Promise.reject(new Error('invalid_phone'));
+  }
   if (!canSubmitForm('inquiry', 60_000)) {
     return Promise.reject(new Error('rate_limited'));
   }
-  const clean = sanitizeFormPayload(data, { name: 120, phone: 40, subject: 120, message: 1200 });
+  const clean = sanitizeFormPayload(
+    { name: data.name, phone: normalizeKazakhstanPhone(data.phone), subject: data.subject, message: data.message, type: data.type || 'contact_form' },
+    { name: 120, phone: 40, subject: 120, message: 1200, type: 60 },
+  );
+  const payload = {
+    ...clean,
+    status: 'new',
+    type: clean.type || 'contact_form',
+    source: 'website',
+    isRead: false,
+  };
   return isFirebaseConfigured
     ? addDoc(collection(db, 'inquiries'), {
-        ...clean,
-        status: 'new',
-        type: clean.type || 'contact_form',
+        ...payload,
         createdAt: serverTimestamp(),
       })
-    : saveLocal('inquiries', { ...clean, status: 'new', type: clean.type || 'contact_form' });
+    : saveLocal('inquiries', payload);
 };

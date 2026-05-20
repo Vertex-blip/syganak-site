@@ -36,8 +36,50 @@ const Programs = () => {
         </div>
       </section>
 
-      <section className="section-y">
+      <section id="format" className="section-y bg-white scroll-mt-28">
+        <div className="container-custom">
+          <div className="mb-10 max-w-3xl">
+            <p className="section-eyebrow">
+              <Layers size={16} />
+              {t('nav.study_format')}
+            </p>
+            <h2 className="section-title">{t('programs.format_title')}</h2>
+            <p className="section-copy mt-4">{t('programs.format_desc')}</p>
+          </div>
+
+          <div className="grid gap-5 md:grid-cols-2">
+            {fallbackPrograms.slice(0, 2).map((program) => (
+              <div key={program.id} className="premium-card p-6">
+                <span className="inline-flex items-center gap-2 rounded-full bg-accent-lightGold px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.12em] text-primary">
+                  <Clock size={15} />
+                  {program.duration}
+                </span>
+                <h3 className="mt-5 font-serif text-2xl font-bold text-primary-dark">{program.title}</h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{program.format}</p>
+                {program.structure?.length > 0 && (
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {program.structure.map((item) => (
+                      <span key={item} className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-600">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="directions" className="section-y scroll-mt-28">
         <div className="container-custom space-y-8">
+          <div className="max-w-3xl">
+            <p className="section-eyebrow">
+              <BookOpen size={16} />
+              {t('nav.program_directions')}
+            </p>
+            <h2 className="section-title">{t('programs.directions_title')}</h2>
+          </div>
           {loading ? (
             <div className="flex justify-center py-20">
               <Loader2 className="animate-spin text-accent-gold" size={40} />

@@ -2,12 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://hsyganaki.kz/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://hsyganaki.kz/about</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hsyganaki.kz/history-mission</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://hsyganaki.kz/leadership</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://hsyganaki.kz/programs</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://hsyganaki.kz/teachers</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://hsyganaki.kz/partners</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://hsyganaki.kz/admission</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://hsyganaki.kz/teachers</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://hsyganaki.kz/news</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://hsyganaki.kz/gallery</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://hsyganaki.kz/faq</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://hsyganaki.kz/contacts</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://hsyganaki.kz/donation</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://hsyganaki.kz/gallery</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://hsyganaki.kz/faq</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://hsyganaki.kz/partners</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://hsyganaki.kz/graduates</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 </urlset>
