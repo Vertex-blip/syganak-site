@@ -98,11 +98,6 @@ export default async function handler(request, response) {
     return response.status(429).json({ error: 'rate_limited' });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    return response.status(503).json({ error: 'assistant_not_configured' });
-  }
-
   const body = await readJsonBody(request);
   const language = normalizeLanguage(body?.language);
   const message = String(body?.message || '').trim();
@@ -113,6 +108,11 @@ export default async function handler(request, response) {
 
   if (!isInstituteQuestion(message)) {
     return response.status(200).json({ answer: getScopeDecline(language), scoped: false });
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return response.status(503).json({ error: 'assistant_not_configured' });
   }
 
   const translation = await loadTranslation(language);
