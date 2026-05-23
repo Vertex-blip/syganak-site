@@ -39,7 +39,7 @@ export const saveApplication = (data) => {
     ...clean,
     status: 'new',
     source: 'website',
-    isRead: false,
+    read: false,
   };
   return isFirebaseConfigured
     ? addDoc(collection(db, 'applications'), {
@@ -68,7 +68,7 @@ export const saveInquiry = (data) => {
     status: 'new',
     type: clean.type || 'contact_form',
     source: 'website',
-    isRead: false,
+    read: false,
   };
   return isFirebaseConfigured
     ? addDoc(collection(db, 'inquiries'), {

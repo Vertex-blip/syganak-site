@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, CheckCircle2, Clock, GraduationCap, Layers, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -8,6 +8,7 @@ import { getInstituteContent } from '../data/instituteContent';
 
 const Programs = () => {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const institute = getInstituteContent(i18n.language);
   const fallbackPrograms = institute.programs;
   const [programs, setPrograms] = useState([]);
@@ -49,7 +50,7 @@ const Programs = () => {
 
           <div className="grid gap-5 md:grid-cols-2">
             {fallbackPrograms.slice(0, 2).map((program) => (
-              <div key={program.id} className="premium-card p-6">
+              <Link key={program.id} to={`/programs/${program.id}`} className="premium-card block p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent-gold/45 hover:shadow-xl">
                 <span className="inline-flex items-center gap-2 rounded-full bg-accent-lightGold px-3 py-1.5 text-xs font-extrabold uppercase tracking-[0.12em] text-primary">
                   <Clock size={15} />
                   {program.duration}
@@ -65,7 +66,7 @@ const Programs = () => {
                     ))}
                   </div>
                 )}
-              </div>
+              </Link>
             ))}
           </div>
         </div>
@@ -92,7 +93,16 @@ const Programs = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-90px' }}
                 transition={{ delay: index * 0.04 }}
-                className="premium-card overflow-hidden"
+                className="premium-card cursor-pointer overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-accent-gold/45 hover:shadow-xl"
+                role="link"
+                tabIndex={0}
+                onClick={() => navigate(`/programs/${program.id}`)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    navigate(`/programs/${program.id}`);
+                  }
+                }}
               >
                 <div className="grid lg:grid-cols-[0.85fr_1.15fr]">
                   <div className="relative min-h-[320px] overflow-hidden bg-primary-dark">
@@ -192,7 +202,12 @@ const Programs = () => {
                     )}
 
                     <div className="mt-10 border-t border-slate-100 pt-8">
-                      <Link to="/admission" className="btn-primary w-full py-4 sm:w-auto">
+                      <Link
+                        to="/admission"
+                        className="btn-primary w-full py-4 sm:w-auto"
+                        onClick={(event) => event.stopPropagation()}
+                        onKeyDown={(event) => event.stopPropagation()}
+                      >
                         {t('programs.apply')}
                         <ArrowRight size={18} />
                       </Link>

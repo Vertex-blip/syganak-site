@@ -10,8 +10,22 @@ export default defineConfig({
     },
   },
   build: {
+    minify: 'terser',
+    sourcemap: false,
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+      format: {
+        comments: false,
+      },
+    },
     rollupOptions: {
       output: {
+        entryFileNames: 'assets/[name]-[hash].js',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: 'assets/[name]-[hash][extname]',
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined;
           if (id.includes('@firebase/firestore') || id.includes('firebase/firestore')) return 'firebase-firestore';
@@ -21,7 +35,14 @@ export default defineConfig({
           if (id.includes('firebase')) return 'firebase-core';
           if (id.includes('framer-motion')) return 'motion';
           if (id.includes('lucide-react')) return 'icons';
-          if (id.includes('react')) return 'react-vendor';
+          if (
+            id.includes('react') ||
+            id.includes('scheduler') ||
+            id.includes('use-sync-external-store') ||
+            id.includes('@remix-run/router')
+          ) {
+            return 'react-vendor';
+          }
           return 'vendor';
         },
       },

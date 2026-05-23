@@ -7,6 +7,7 @@ const About = lazy(() => import('./pages/About'));
 const HistoryMission = lazy(() => import('./pages/HistoryMission'));
 const Leadership = lazy(() => import('./pages/Leadership'));
 const Programs = lazy(() => import('./pages/Programs'));
+const ProgramDetail = lazy(() => import('./pages/ProgramDetail'));
 const Teachers = lazy(() => import('./pages/Teachers'));
 const Partners = lazy(() => import('./pages/Partners'));
 const Graduates = lazy(() => import('./pages/Graduates'));
@@ -97,6 +98,7 @@ function App() {
           <Route path="history-mission" element={<HistoryMission />} />
           <Route path="leadership" element={<Leadership />} />
           <Route path="programs" element={<Programs />} />
+          <Route path="programs/:id" element={<ProgramDetail />} />
           <Route path="teachers" element={<Teachers />} />
           <Route path="partners" element={<Partners />} />
           <Route path="graduates" element={<Graduates />} />

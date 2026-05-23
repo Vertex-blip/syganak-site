@@ -47,7 +47,7 @@ export const isHoneypotFilled = (payload = {}) =>
 export const validateImageFile = (file) => {
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   const allowedExts = /\.(jpe?g|png|webp)$/i;
-  const maxSize = 12 * 1024 * 1024;
+  const maxSize = 5 * 1024 * 1024;
 
   const typeOk = file && (allowedTypes.includes(file.type) || allowedExts.test(file.name));
   if (!typeOk) throw new Error('Invalid image type');

@@ -33,32 +33,36 @@ service cloud.firestore {
       return value == null || (value is string && value.size() <= max);
     }
 
+    function validPhone(value) {
+      return value is string && value.matches('^\\+7[0-9]{10}$');
+    }
+
     function validStatus(value) {
       return value in ['new', 'viewed', 'contacted', 'processed', 'completed', 'accepted', 'rejected'];
     }
 
     function validApplicationCreate() {
-      return request.resource.data.keys().hasOnly(['fullName', 'phone', 'program', 'message', 'status', 'createdAt', 'source', 'isRead'])
+      return request.resource.data.keys().hasOnly(['fullName', 'phone', 'program', 'message', 'status', 'createdAt', 'source', 'read'])
         && isShortText(request.resource.data.fullName, 120)
-        && isShortText(request.resource.data.phone, 40)
+        && validPhone(request.resource.data.phone)
         && isShortText(request.resource.data.program, 120)
         && (!('message' in request.resource.data) || isOptionalText(request.resource.data.message, 1000))
         && request.resource.data.status == 'new'
-        && (!('source' in request.resource.data) || request.resource.data.source == 'website')
-        && (!('isRead' in request.resource.data) || request.resource.data.isRead == false)
+        && request.resource.data.source == 'website'
+        && request.resource.data.read == false
         && request.resource.data.createdAt == request.time;
     }
 
     function validInquiryCreate() {
-      return request.resource.data.keys().hasOnly(['name', 'phone', 'subject', 'message', 'type', 'status', 'createdAt', 'source', 'isRead'])
+      return request.resource.data.keys().hasOnly(['name', 'phone', 'subject', 'message', 'type', 'status', 'createdAt', 'source', 'read'])
         && isShortText(request.resource.data.name, 120)
-        && isShortText(request.resource.data.phone, 40)
+        && validPhone(request.resource.data.phone)
         && isShortText(request.resource.data.subject, 120)
         && isShortText(request.resource.data.message, 1200)
         && (!('type' in request.resource.data) || isOptionalText(request.resource.data.type, 60))
         && request.resource.data.status == 'new'
-        && (!('source' in request.resource.data) || request.resource.data.source == 'website')
-        && (!('isRead' in request.resource.data) || request.resource.data.isRead == false)
+        && request.resource.data.source == 'website'
+        && request.resource.data.read == false
         && request.resource.data.createdAt == request.time;
     }
 
@@ -104,10 +108,7 @@ service cloud.firestore {
 
     match /adminRoles/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
-      allow create, update: if isAdmin()
-        && request.resource.data.keys().hasOnly(['role', 'email', 'createdAt', 'updatedAt'])
-        && request.resource.data.role == 'admin';
-      allow delete: if isAdmin();
+      allow create, update, delete: if false;
     }
 
     match /news/{document} {
@@ -158,7 +159,8 @@ service cloud.firestore {
         && request.resource.data.keys().hasOnly(['key', 'language', 'value', 'deleted', 'createdAt', 'updatedAt'])
         && (!('key' in request.resource.data) || isOptionalText(request.resource.data.key, 120))
         && (!('language' in request.resource.data) || request.resource.data.language in ['kz', 'ru', 'en', 'ar'])
-        && (!('value' in request.resource.data) || isOptionalText(request.resource.data.value, 4000));
+        && (!('value' in request.resource.data) || isOptionalText(request.resource.data.value, 4000))
+        && (!('deleted' in request.resource.data) || request.resource.data.deleted is bool);
       allow delete: if isAdmin();
     }
 

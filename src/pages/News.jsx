@@ -5,15 +5,21 @@ import { ArrowRight, CalendarDays, Search } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { fetchNewsList } from '../services/newsService';
 import { normalizeText } from '../utils/formatDate';
+import { getInstituteContent } from '../data/instituteContent';
 
 const News = () => {
   const { t, i18n } = useTranslation();
-  const fallback = useMemo(() => t('news.fallback', { returnObjects: true }), [t]);
-  const categories = useMemo(() => t('news.categories', { returnObjects: true }), [t]);
+  const institute = useMemo(() => getInstituteContent(i18n.language), [i18n.language]);
+  const fallback = institute.news;
+  const allCategory = t('common.all');
   const [news, setNews] = useState(fallback);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState(categories[0]);
+  const [category, setCategory] = useState(allCategory);
+  const categories = useMemo(
+    () => [allCategory, ...Array.from(new Set(news.map((item) => item.category).filter(Boolean)))],
+    [allCategory, news],
+  );
 
   useEffect(() => {
     let active = true;
@@ -30,22 +36,21 @@ const News = () => {
   }, [fallback, i18n.language]);
 
   useEffect(() => {
-    setCategory(categories[0]);
-  }, [categories]);
+    setCategory(allCategory);
+  }, [allCategory]);
 
   const filteredNews = useMemo(() => {
     const search = normalizeText(query);
-    const allLabel = categories[0];
 
     return news.filter((item) => {
       const matchesSearch =
         !search ||
         normalizeText(item.title).includes(search) ||
         normalizeText(item.excerpt).includes(search);
-      const matchesCategory = category === allLabel || item.category === category;
+      const matchesCategory = category === allCategory || item.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [category, categories, news, query]);
+  }, [allCategory, category, news, query]);
 
   return (
     <div className="bg-background">

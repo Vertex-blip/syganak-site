@@ -131,7 +131,7 @@
     "all_programs": "All programs",
     "all_teachers": "All faculty",
     "all_news": "All news",
-    "admission_cta_title": "Get admission guidance",
+    "admission_cta_title": "Ready to apply?",
     "admission_cta_desc": "The admissions office will help you choose a program, prepare documents, and explain the next steps.",
     "gallery_short_title": "Scenes from institute life",
     "gallery_short_desc": "A concise photo selection from study, campus and institute events.",
@@ -397,8 +397,8 @@
       "An interview or level assessment may be required for the program.",
       "Admission decisions are made after the full document package is submitted."
     ],
-    "tuition_title": "Tuition",
-    "tuition_note": "Tuition is clarified through the admissions office.",
+    "tuition_title": "Free study",
+    "tuition_note": "Study at the institute is fully free.",
     "invalid_phone": "Enter a Kazakhstan phone number, for example: +7 777 123 45 67.",
     "spam_error": "The form was not submitted. If this is a mistake, contact us on WhatsApp.",
     "name_placeholder": "Enter your full name",
@@ -654,7 +654,7 @@
     "open": "Open",
     "custom_category": "Enter custom category",
     "upload_error": "Image upload failed. Check the file type and size.",
-    "upload_hint": "JPG, PNG or WebP, up to 12 MB. Images are optimized automatically.",
+    "upload_hint": "JPG, PNG or WebP, up to 5 MB. Images are optimized automatically.",
     "new": "New",
     "processed": "Processed",
     "accepted": "Accepted",
@@ -752,10 +752,10 @@
       "Spiritual and educational projects"
     ],
     "kaspi_title": "Support via Kaspi",
-    "kaspi_text": "After the real Kaspi payment link is added, the button will open the payment page directly.",
+    "kaspi_text": "Use the button to contact the responsible staff member for support information.",
     "kaspi_button": "Support via Kaspi",
-    "kaspi_todo": "The Kaspi payment link has not been added yet. Set the official URL in VITE_KASPI_DONATION_URL.",
-    "kaspi_fallback_note": "The official payment link has not been added yet. The button opens Kaspi transfers. Transfer number: {{phone}}.",
+    "kaspi_todo": "",
+    "kaspi_fallback_note": "",
     "whatsapp_text": "Assalamu alaikum! I would like to learn about supporting the institute."
   },
   "historyMission": {

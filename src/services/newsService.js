@@ -137,7 +137,7 @@ export const deleteNewsArticle = (id) => {
 export const uploadNewsImage = async (file, folder = 'news') => {
   validateImageFile(file);
 
-  const resizeImage = (f, output = 'data-url') =>
+  const resizeImage = (f) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -165,18 +165,14 @@ export const uploadNewsImage = async (file, folder = 'news') => {
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          if (output === 'blob') {
-            canvas.toBlob(
-              (blob) => {
-                if (!blob) reject(new Error('image_processing_failed'));
-                else resolve(blob);
-              },
-              'image/jpeg',
-              0.82,
-            );
-          } else {
-            resolve(canvas.toDataURL('image/jpeg', 0.72));
-          }
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) reject(new Error('image_processing_failed'));
+              else resolve(blob);
+            },
+            'image/jpeg',
+            0.82,
+          );
         };
         img.onerror = reject;
         img.src = e.target.result;
@@ -186,14 +182,13 @@ export const uploadNewsImage = async (file, folder = 'news') => {
     });
 
   if (!isFirebaseConfigured) {
-    return resizeImage(file);
+    throw new Error('image_upload_unavailable');
   }
 
-  // Try Firebase Storage; fall back to base64 if it fails (e.g. rules not configured)
   try {
     const allowedFolders = new Set(['news', 'gallery']);
     const targetFolder = allowedFolders.has(folder) ? folder : 'news';
-    const blob = await resizeImage(file, 'blob');
+    const blob = await resizeImage(file);
     const safeBase = file.name.replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '-').slice(0, 80) || 'image';
     const safeName = `${Date.now()}-${crypto.randomUUID?.() || Math.random().toString(36).slice(2)}-${safeBase}.jpg`;
     const imageRef = ref(storage, `${targetFolder}/${safeName}`);
@@ -207,8 +202,7 @@ export const uploadNewsImage = async (file, folder = 'news') => {
 
     return await Promise.race([uploadPromise, timeoutPromise]);
   } catch (storageError) {
-    console.warn('Firebase Storage upload failed, falling back to base64:', storageError.message);
-    // Fallback: store as base64 data URL
-    return resizeImage(file);
+    console.warn('Firebase Storage upload failed:', storageError.message);
+    throw new Error('image_upload_failed');
   }
 };

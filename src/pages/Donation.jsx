@@ -1,11 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, CheckCircle2, CreditCard, HeartHandshake, Info, Phone } from 'lucide-react';
+import { ArrowRight, CheckCircle2, CreditCard, HeartHandshake, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import {
   KASPI_DONATION_URL,
-  KASPI_FALLBACK_URL,
-  KASPI_SUPPORT_NUMBER,
   WHATSAPP_NUMBER,
 } from '../config/site';
 import { buildWhatsAppLink } from '../utils/contactLinks';
@@ -13,8 +11,7 @@ import { buildWhatsAppLink } from '../utils/contactLinks';
 const Donation = () => {
   const { t } = useTranslation();
   const supportItems = t('donation.items', { returnObjects: true, defaultValue: [] });
-  const kaspiReady = Boolean(KASPI_DONATION_URL);
-  const kaspiHref = KASPI_DONATION_URL || KASPI_FALLBACK_URL;
+  const kaspiHref = KASPI_DONATION_URL || buildWhatsAppLink(WHATSAPP_NUMBER, t('donation.whatsapp_text'));
 
   return (
     <div className="bg-background">
@@ -72,16 +69,6 @@ const Donation = () => {
               {t('donation.kaspi_button')}
               <ArrowRight size={18} />
             </a>
-
-            {!kaspiReady && (
-              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold leading-7 text-amber-800">
-                <Info className="mb-2 text-amber-600" size={18} />
-                {t('donation.kaspi_fallback_note', {
-                  phone: KASPI_SUPPORT_NUMBER,
-                  defaultValue: t('donation.kaspi_todo'),
-                })}
-              </div>
-            )}
 
             <a
               href={buildWhatsAppLink(WHATSAPP_NUMBER, t('donation.whatsapp_text'))}

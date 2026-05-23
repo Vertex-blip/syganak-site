@@ -131,7 +131,7 @@
     "all_programs": "كل البرامج",
     "all_teachers": "كل المدرسين",
     "all_news": "كل الأخبار",
-    "admission_cta_title": "استشر لجنة القبول",
+    "admission_cta_title": "هل أنت مستعد للالتحاق بالمعهد؟",
     "admission_cta_desc": "تساعدك لجنة القبول في اختيار البرنامج وتجهيز الوثائق والخطوات التالية.",
     "gallery_short_title": "لقطات من حياة المعهد",
     "gallery_short_desc": "مجموعة مختصرة من صور الدراسة والحرم والفعاليات.",
@@ -363,7 +363,9 @@
     "features_title": "شروط الدراسة",
     "certificate_title": "الشهادة",
     "certificate_note": "يحصل الطالب بعد إتمام البرنامج على شهادة من المعهد.",
-    "programs_title": "برامج القبول"
+    "programs_title": "برامج القبول",
+    "tuition_title": "دراسة مجانية",
+    "tuition_note": "الدراسة في المعهد مجانية بالكامل."
   },
   "news": {
     "title": "الأخبار",
@@ -606,7 +608,7 @@
     "open": "فتح",
     "custom_category": "إدخال فئة مخصصة",
     "upload_error": "فشل رفع الصورة. تحقق من نوع الملف وحجمه.",
-    "upload_hint": "JPG أو PNG أو WebP حتى 12 ميغابايت. يتم تحسين الصورة تلقائيا.",
+    "upload_hint": "JPG ?? PNG ?? WebP ??? 5 ????????. ??? ????? ?????? ???????.",
     "new": "جديد",
     "processed": "تمت المعالجة",
     "accepted": "مقبول",
@@ -643,10 +645,10 @@
       "مشاريع روحية وتعليمية"
     ],
     "kaspi_title": "الدعم عبر Kaspi",
-    "kaspi_text": "بعد إضافة رابط Kaspi الرسمي سيفتح الزر صفحة الدفع مباشرة.",
+    "kaspi_text": "استخدم الزر للتواصل مع المسؤول حول معلومات الدعم.",
     "kaspi_button": "الدعم عبر Kaspi",
-    "kaspi_todo": "لم تتم إضافة رابط Kaspi بعد. يجب ضبط الرابط الرسمي في VITE_KASPI_DONATION_URL.",
-    "kaspi_fallback_note": "لم تتم إضافة رابط الدفع الرسمي بعد. يفتح الزر صفحة التحويلات في Kaspi. رقم التحويل: {{phone}}.",
+    "kaspi_todo": "",
+    "kaspi_fallback_note": "",
     "whatsapp_text": "السلام عليكم! أريد معرفة طريقة دعم المعهد."
   },
   "historyMission": {

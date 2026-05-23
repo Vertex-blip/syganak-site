@@ -8,7 +8,6 @@ import {
   MessageCircle,
   Send,
   ShieldCheck,
-  WalletCards,
   X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -33,7 +32,7 @@ const Admission = () => {
   const [programs, setPrograms] = useState([]);
   const [loadingPrograms, setLoadingPrograms] = useState(true);
 
-  const steps = t('admission.steps', { returnObjects: true }).slice(0, 4);
+  const steps = t('admission.steps', { returnObjects: true }).slice(0, 5);
   const requirements = t('admission.requirements', { returnObjects: true });
   const periods = t('admission.periods', { returnObjects: true, defaultValue: [] });
   const conditions = t('admission.conditions', { returnObjects: true, defaultValue: [] });
@@ -113,7 +112,7 @@ const Admission = () => {
       <section className="section-y">
         <div className="container-custom grid gap-8 lg:grid-cols-[1fr_420px] lg:items-start">
           <div className="space-y-8">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
               <div className="premium-card p-5">
                 <CalendarDays className="mb-4 text-accent-gold" size={28} />
                 <h3 className="text-xl font-bold">{t('admission.periods_title')}</h3>
@@ -127,11 +126,6 @@ const Admission = () => {
                 <div className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
                   {conditions.map((item) => <p key={item}>{item}</p>)}
                 </div>
-              </div>
-              <div className="premium-card p-5">
-                <WalletCards className="mb-4 text-accent-gold" size={28} />
-                <h3 className="text-xl font-bold">{t('admission.tuition_title')}</h3>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{t('admission.tuition_note')}</p>
               </div>
             </div>
 
