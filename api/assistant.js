@@ -127,7 +127,7 @@ export default async function handler(request, response) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: process.env.OPENAI_MODEL || 'gpt-5-nano',
+        model: process.env.OPENAI_MODEL || 'gpt-5.4-nano',
         instructions: systemInstructions({ context, language }),
         input: message,
         max_output_tokens: 500,
