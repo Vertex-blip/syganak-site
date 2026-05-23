@@ -15,6 +15,17 @@ git commit -m "Remove generated and secret files from repository"
 
 Rotate any secret that was committed before. Removing it from Git history is a separate incident-response task.
 
+## AI Assistant API Key
+
+Never put OpenAI keys in frontend variables. Do not use a `VITE_` prefix for private AI keys. Store the production key only as a Vercel server-side environment variable:
+
+```bash
+vercel env add OPENAI_API_KEY production --scope vertex-s-projects2 --sensitive
+vercel env add OPENAI_MODEL production --scope vertex-s-projects2 --no-sensitive
+```
+
+The website calls `/api/assistant`; the browser never receives `OPENAI_API_KEY`. The serverless function validates topic scope before calling OpenAI and refuses non-institute questions.
+
 ## Firebase App Check
 
 The frontend initializes Firebase App Check when `VITE_FIREBASE_RECAPTCHA_ENTERPRISE_SITE_KEY` is configured. Start in Firebase Console monitor mode, verify legitimate traffic, then enforce App Check for Firestore and Storage.

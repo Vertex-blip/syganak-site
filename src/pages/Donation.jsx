@@ -11,7 +11,7 @@ import { buildWhatsAppLink } from '../utils/contactLinks';
 const Donation = () => {
   const { t } = useTranslation();
   const supportItems = t('donation.items', { returnObjects: true, defaultValue: [] });
-  const kaspiHref = KASPI_DONATION_URL || buildWhatsAppLink(WHATSAPP_NUMBER, t('donation.whatsapp_text'));
+  const kaspiHref = KASPI_DONATION_URL;
 
   return (
     <div className="bg-background">
