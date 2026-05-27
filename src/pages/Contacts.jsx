@@ -75,8 +75,8 @@ const Contacts = () => {
   return (
     <div className="bg-background">
       <section className="relative overflow-hidden bg-primary-dark pb-16 pt-32 text-white sm:pt-40">
-        <img src="/institute/hero-institute.jpeg" alt={t('contacts.title')} className="absolute inset-0 h-full w-full object-cover opacity-28" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary-dark/90 to-primary-dark/55" />
+        <img src="/institute/official-campus-sign.jpg" alt={t('contacts.title')} className="absolute inset-0 h-full w-full object-cover opacity-50" loading="eager" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark/90 via-primary-dark/72 to-primary-dark/30" />
         <div className="islamic-pattern absolute inset-0 opacity-[0.12]" />
         <div className="container-custom relative z-10 max-w-4xl">
           <p className="section-eyebrow">{t('nav.contacts')}</p>

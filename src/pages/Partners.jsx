@@ -40,8 +40,8 @@ const Partners = () => {
   return (
     <div className="overflow-hidden bg-background">
       <section className="relative overflow-hidden bg-primary-dark pb-16 pt-32 text-white sm:pt-40">
-        <img src={institute.baseImages.international} alt={t('partners.title')} className="absolute inset-0 h-full w-full object-cover opacity-28" loading="eager" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary-dark/90 to-primary-dark/55" />
+        <img src="/institute/official-tashkent-conference.jpg" alt={t('partners.title')} className="absolute inset-0 h-full w-full object-cover opacity-50" loading="eager" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark/90 via-primary-dark/72 to-primary-dark/30" />
         <div className="islamic-pattern absolute inset-0 opacity-[0.12]" />
         <div className="container-custom relative z-10 max-w-4xl">
           <p className="section-eyebrow">{t('nav.partners')}</p>

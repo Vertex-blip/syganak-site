@@ -109,7 +109,7 @@ const Home = () => {
           loading="eager"
           fetchPriority="high"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary-dark/86 to-primary-dark/35" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark/92 via-primary-dark/72 to-primary-dark/24" />
         <div className="absolute inset-0 bg-gradient-to-t from-primary-dark via-primary-dark/10 to-primary-dark/10" />
         <div className="islamic-pattern absolute inset-y-0 left-0 w-1/2 opacity-[0.10]" />
 

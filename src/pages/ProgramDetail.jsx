@@ -63,8 +63,8 @@ const ProgramDetail = () => {
   return (
     <div className="bg-background">
       <section className="relative overflow-hidden bg-primary-dark pb-16 pt-32 text-white sm:pt-40">
-        <img src={program.image} alt={program.title} className="absolute inset-0 h-full w-full object-cover opacity-32" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark via-primary-dark/90 to-primary-dark/55" />
+        <img src={program.image} alt={program.title} className="absolute inset-0 h-full w-full object-cover opacity-50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-dark/90 via-primary-dark/72 to-primary-dark/30" />
         <div className="islamic-pattern absolute inset-0 opacity-[0.12]" />
         <div className="container-custom relative z-10">
           <Link to="/programs" className="mb-8 inline-flex items-center gap-2 text-sm font-bold text-white/70 transition-colors hover:text-accent-gold">
