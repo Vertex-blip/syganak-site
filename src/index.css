@@ -152,10 +152,16 @@
     background-size: 44px 76px;
   }
 
-  .has-arabic-content,
+  .has-arabic-content {
+    direction: ltr;
+  }
+
   .has-arabic-content main,
   .has-arabic-content footer {
-    direction: rtl;
+    direction: ltr;
+  }
+
+  .has-arabic-content > :where(header, div.fixed) :where(a, button, span, p) {
     font-family: 'Amiri', serif;
   }
 
@@ -166,6 +172,12 @@
     direction: rtl;
     text-align: right;
     unicode-bidi: plaintext;
+  }
+
+  .has-arabic-content main :where(h1, h2, h3, h4, h5, h6),
+  .has-arabic-content main :where(p, li, label, input, textarea, select, figcaption),
+  .has-arabic-content footer :where(h1, h2, h3, h4, h5, h6, p, li, label) {
+    font-family: 'Amiri', serif;
   }
 
   .has-arabic-content main :where(.section-eyebrow, .btn-primary, .btn-secondary, .btn-ghost, .btn-gold, .btn-outline),
@@ -185,27 +197,9 @@
     text-align: right;
   }
 
-  .has-arabic-content main :where(.max-w-sm, .max-w-md, .max-w-lg, .max-w-xl, .max-w-2xl, .max-w-3xl, .max-w-4xl, .max-w-5xl) {
-    margin-left: auto;
-    margin-right: 0;
-  }
-
   .has-arabic-content main :where(.mx-auto) {
     margin-left: auto;
     margin-right: auto;
-  }
-
-  .has-arabic-content main :where(.islamic-pattern.left-0) {
-    left: auto;
-    right: 0;
-  }
-
-  .has-arabic-content :where(.bg-gradient-to-r) {
-    background-image: linear-gradient(to left, var(--tw-gradient-stops));
-  }
-
-  .has-arabic-content :where(.bg-gradient-to-l) {
-    background-image: linear-gradient(to right, var(--tw-gradient-stops));
   }
 
   .has-arabic-content :where(.border-l-2) {
