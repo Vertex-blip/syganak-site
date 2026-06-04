@@ -175,13 +175,20 @@ const Contacts = () => {
           </motion.div>
 
           <div className="space-y-5">
-            <div className="overflow-hidden rounded-lg border border-slate-200 shadow-sm">
-              <iframe
-                title={t('contacts.map_title')}
-                className="h-[360px] w-full border-0"
-                src="/2gis-map.html"
+            <div className="premium-card overflow-hidden p-0">
+              <img
+                src="/institute/official-campus-sign.jpg"
+                alt={t('contacts.address_title')}
+                className="h-[260px] w-full object-cover"
                 loading="lazy"
               />
+              <div className="p-6">
+                <h3 className="text-xl font-bold">{t('contacts.address_title')}</h3>
+                <a href={MAP_URL} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 text-sm font-bold leading-7 text-primary hover:text-accent-gold">
+                  <MapPin size={18} className="shrink-0 text-accent-gold" />
+                  {t('topbar.address')}
+                </a>
+              </div>
             </div>
             <div className="premium-card p-6">
               <h3 className="text-xl font-bold">{t('contacts.socials_title')}</h3>

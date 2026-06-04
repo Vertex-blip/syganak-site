@@ -1,5 +1,5 @@
 const baseImages = {
-  hero: '/institute/official-campus-yard.jpg',
+  hero: '/institute/hero-institute.jpeg',
   campus: '/institute/official-campus-yard.jpg',
   campusSign: '/institute/official-campus-sign.jpg',
   about: '/institute/official-library-table.jpg',

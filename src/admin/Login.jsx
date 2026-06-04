@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { Loader2, Lock, Mail, ChevronLeft, Send, Eye, EyeOff } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { auth } from '../firebase/config';
+import { auth, isFirebaseConfigured } from '../firebase/config';
 
 const Login = () => {
   const { t } = useTranslation();
@@ -16,15 +16,34 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
+  const getLoginError = (err) => {
+    if (!isFirebaseConfigured) {
+      return t('admin.firebase_missing', { defaultValue: 'Firebase configuration is missing. Check Vercel environment variables.' });
+    }
+    if (err?.code === 'auth/unauthorized-domain') {
+      return t('admin.unauthorized_domain', { defaultValue: 'This domain is not allowed in Firebase Auth settings.' });
+    }
+    if (err?.code === 'auth/invalid-api-key' || err?.code === 'auth/api-key-not-valid') {
+      return t('admin.invalid_firebase_key', { defaultValue: 'Firebase API key is invalid or missing.' });
+    }
+    return t('admin.login_error', { defaultValue: 'Invalid email or password' });
+  };
+
   const handleLogin = async (event) => {
     event.preventDefault();
     setLoading(true);
     setError('');
+    if (!isFirebaseConfigured) {
+      setError(getLoginError());
+      setLoading(false);
+      return;
+    }
     try {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/admin');
-    } catch {
-      setError(t('admin.login_error', { defaultValue: 'Invalid email or password' }));
+    } catch (err) {
+      console.warn('Admin login failed:', err);
+      setError(getLoginError(err));
     } finally {
       setLoading(false);
     }
@@ -38,10 +57,16 @@ const Login = () => {
     }
     setLoading(true);
     setError('');
+    if (!isFirebaseConfigured) {
+      setError(getLoginError());
+      setLoading(false);
+      return;
+    }
     try {
       await sendPasswordResetEmail(auth, email);
       setResetSent(true);
-    } catch {
+    } catch (err) {
+      console.warn('Password reset failed:', err);
       setError(t('admin.reset_error', { defaultValue: 'Something went wrong. Check the email address.' }));
     } finally {
       setLoading(false);
