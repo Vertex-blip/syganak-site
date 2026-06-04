@@ -7,7 +7,7 @@ import {
   tokenizeAssistantText,
 } from '../data/assistantScope';
 
-const endpoint = import.meta.env.VITE_AI_ASSISTANT_ENDPOINT || '/api/assistant';
+const endpoint = import.meta.env.VITE_AI_ASSISTANT_ENDPOINT || '';
 
 const scopeAnswer = (t) =>
   t('assistant.out_of_scope', {
@@ -131,6 +131,7 @@ export const askAssistant = async ({ message, language, t }) => {
   const localAnswer = localAssistantAnswer(message, t, language);
   const faqAnswer = await getFirestoreFaq({ message, language });
   if (faqAnswer) return faqAnswer;
+  if (!endpoint) return localAnswer;
 
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 12000);
