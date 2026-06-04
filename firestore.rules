@@ -21,6 +21,7 @@ service cloud.firestore {
         && (
           request.auth.token.admin == true
           || request.auth.token.role == 'admin'
+          || request.auth.token.email == 'admin@syganaki.kz'
           || hasAdminRoleDoc()
         );
     }

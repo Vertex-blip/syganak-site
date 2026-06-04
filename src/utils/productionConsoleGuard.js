@@ -1,5 +1,6 @@
 const lockConsole = () => {
   if (typeof window === 'undefined' || import.meta.env.DEV) return;
+  if (window.location.pathname.startsWith('/admin')) return;
 
   const consoleRef = window.console;
   if (!consoleRef || window.__SYGANAKI_CONSOLE_GUARD__) return;

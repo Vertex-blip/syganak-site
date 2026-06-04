@@ -26,6 +26,18 @@ const Login = () => {
     if (err?.code === 'auth/invalid-api-key' || err?.code === 'auth/api-key-not-valid') {
       return t('admin.invalid_firebase_key', { defaultValue: 'Firebase API key is invalid or missing.' });
     }
+    if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password' || err?.code === 'auth/user-not-found') {
+      return t('admin.login_error', { defaultValue: 'Invalid email or password' });
+    }
+    if (err?.code === 'auth/too-many-requests') {
+      return t('admin.too_many_login_attempts', { defaultValue: 'Too many attempts. Try again later or reset the password.' });
+    }
+    if (err?.code === 'auth/network-request-failed') {
+      return t('admin.login_network_error', { defaultValue: 'Network error. Check the connection and try again.' });
+    }
+    if (err?.code) {
+      return `${t('admin.login_error', { defaultValue: 'Login failed' })}: ${err.code}`;
+    }
     return t('admin.login_error', { defaultValue: 'Invalid email or password' });
   };
 
@@ -42,7 +54,7 @@ const Login = () => {
       await signInWithEmailAndPassword(auth, email, password);
       navigate('/admin');
     } catch (err) {
-      console.warn('Admin login failed:', err);
+      console.error('Admin login failed:', err);
       setError(getLoginError(err));
     } finally {
       setLoading(false);
@@ -66,7 +78,7 @@ const Login = () => {
       await sendPasswordResetEmail(auth, email);
       setResetSent(true);
     } catch (err) {
-      console.warn('Password reset failed:', err);
+      console.error('Password reset failed:', err);
       setError(t('admin.reset_error', { defaultValue: 'Something went wrong. Check the email address.' }));
     } finally {
       setLoading(false);
