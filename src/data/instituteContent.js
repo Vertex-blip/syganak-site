@@ -434,6 +434,21 @@ const teachers = [
       ar: ['جامعة الأزهر، بكالوريوس اللغة العربية'],
     },
   },
+  {
+    id: 'adam-ustaz',
+    categoryKey: 'islamic',
+    name: L('Адам ұстаз', 'Адам устаз', 'Adam ustaz', 'الأستاذ آدم'),
+    role: L('Оқытушы', 'Преподаватель', 'Teacher', 'مدرس'),
+    degree: L('Оқытушы', 'Преподаватель', 'Teacher', 'مدرس'),
+    country: L('Қазақстан', 'Казахстан', 'Kazakhstan', 'كازاخستان'),
+    image: '',
+    education: {
+      kz: [],
+      ru: [],
+      en: [],
+      ar: [],
+    },
+  },
 ];
 
 const categoryNames = {
@@ -441,6 +456,83 @@ const categoryNames = {
   ru: { administration: 'Администрация', quran: 'Коранические науки', islamic: 'Исламские науки', languages: 'Арабский язык' },
   en: { administration: 'Administration', quran: 'Quranic Sciences', islamic: 'Islamic Sciences', languages: 'Arabic Language' },
   ar: { administration: 'الإدارة', quran: 'علوم القرآن', islamic: 'العلوم الإسلامية', languages: 'اللغة العربية' },
+};
+
+const teacherDirectoryOrder = [
+  'bagdat-manabayev',
+  'temirzhan-muratov',
+  'yaser-setochi',
+  'sabri-ali',
+  'suleyman-tash',
+  'temirlan-ibrayev',
+  'mahmud-mahmud',
+  'adam-ustaz',
+  'serik-zhumashev',
+  'zhaksylyk-rakhymbay',
+  'azamat-baizakov',
+];
+
+const teacherDirectoryMeta = {
+  'bagdat-manabayev': {
+    label: L('Директор', 'Директор', 'Director', 'المدير'),
+    name: L('МАНАБАЕВ БАҒДАТ МАХАНҰЛЫ', 'МАНАБАЕВ БАГДАТ МАХАНОВИЧ', 'BAGDAT MANABAYEV', 'بغداد ماناباييف'),
+    shortInfo: L(
+      'PhD доктор, Хусамуддин ас-Сығанақи ислам институтының басшысы.',
+      'PhD доктор, руководитель исламского института имени Хусамуддина ас-Сыганаки.',
+      'PhD, head of Husamuddin as-Syganaqi Islamic Institute.',
+      'دكتوراه، مدير معهد حسام الدين الصغناقي الإسلامي.'
+    ),
+    resume: '/resumes/manabayev-bagdat.docx',
+  },
+  'temirzhan-muratov': {
+    label: L('Теміржан ұстаз', 'Темиржан устаз', 'Temirzhan ustaz', 'الأستاذ تميرجان'),
+    name: L('МҰРАТОВ ТЕМІРЖАН ӨТЕЖАНҰЛЫ', 'МУРАТОВ ТЕМИРЖАН ОТЕЖАНОВИЧ', 'TEMIRZHAN MURATOV', 'تميرجان موراتوف'),
+    shortInfo: L('Оқытушы, қари.', 'Преподаватель, кари.', 'Teacher, qari.', 'مدرس وقارئ.'),
+    resume: '/resumes/muratov-temirzhan.docx',
+  },
+  'yaser-setochi': {
+    label: L('Ясир ұстаз', 'Ясир устаз', 'Yaser ustaz', 'الأستاذ ياسر'),
+    shortInfo: L('PhD доктор, исламтану пәндерінің оқытушысы.', 'PhD доктор, преподаватель исламских дисциплин.', 'PhD, teacher of Islamic studies.', 'دكتوراه، مدرس العلوم الإسلامية.'),
+    resume: '/resumes/yaser-setochi.docx',
+  },
+  'sabri-ali': {
+    label: L('Сабри ұстаз', 'Сабри устаз', 'Sabri ustaz', 'الأستاذ صبري'),
+    name: L('САБРИ МҰХАММЕД ӘБДІЛҒАЗИМ ӘЛИ', 'САБРИ МУХАММЕД АБДЕЛЬ АЗИМ АЛИ', 'SABRI MUHAMMAD ABDEL AZIM ALI', 'صبري محمد عبد العظيم علي'),
+    shortInfo: L('PhD, оқытушы.', 'PhD, преподаватель.', 'PhD, teacher.', 'دكتوراه، مدرس.'),
+    resume: '/resumes/sabri-muhammad.docx',
+  },
+  'suleyman-tash': {
+    label: L('Сулейман ұстаз', 'Сулейман устаз', 'Suleyman ustaz', 'الأستاذ سليمان'),
+    shortInfo: L('PhD доктор, исламтану пәндерінің оқытушысы.', 'PhD доктор, преподаватель исламских дисциплин.', 'PhD, teacher of Islamic studies.', 'دكتوراه، مدرس العلوم الإسلامية.'),
+  },
+  'temirlan-ibrayev': {
+    label: L('Темірлан ұстаз', 'Темирлан устаз', 'Temirlan ustaz', 'الأستاذ تميرلان'),
+    shortInfo: L('Исламтану пәндерінің оқытушысы.', 'Преподаватель исламских дисциплин.', 'Teacher of Islamic studies.', 'مدرس العلوم الإسلامية.'),
+  },
+  'mahmud-mahmud': {
+    label: L('Махмуд ұстаз', 'Махмуд устаз', 'Mahmud ustaz', 'الأستاذ محمود'),
+    name: L('МАХМУД АХМЕД МҰХАММЕД МАХМУД', 'МАХМУД АХМЕД МОХАМЕД МАХМУД', 'MAHMUD AHMED MOHAMED MAHMUD', 'محمود أحمد محمد محمود'),
+    shortInfo: L('Оқытушы.', 'Преподаватель.', 'Teacher.', 'مدرس.'),
+    resume: '/resumes/mahmud-ahmed.docx',
+  },
+  'adam-ustaz': {
+    label: L('Адам ұстаз', 'Адам устаз', 'Adam ustaz', 'الأستاذ آدم'),
+    shortInfo: L('Оқытушы.', 'Преподаватель.', 'Teacher.', 'مدرس.'),
+  },
+  'serik-zhumashev': {
+    label: L('Серік ұстаз', 'Серик устаз', 'Serik ustaz', 'الأستاذ سيرك'),
+    shortInfo: L('Исламтану пәндерінің оқытушысы.', 'Преподаватель исламских дисциплин.', 'Teacher of Islamic studies.', 'مدرس العلوم الإسلامية.'),
+  },
+  'zhaksylyk-rakhymbay': {
+    label: L('Жақсылық ұстаз', 'Жаксылык устаз', 'Zhaksylyk ustaz', 'الأستاذ جاكسلك'),
+    shortInfo: L('Директордың орынбасары, дінтанушы.', 'Заместитель директора, религиовед.', 'Deputy director, religious studies specialist.', 'نائب المدير ومتخصص في الدراسات الدينية.'),
+    resume: '/resumes/rakhymbay-zhaksylyk.docx',
+  },
+  'azamat-baizakov': {
+    label: L('Азамат ұстаз', 'Азамат устаз', 'Azamat ustaz', 'الأستاذ عزمت'),
+    shortInfo: L('Оқу бөлімінің меңгерушісі.', 'Руководитель учебного отдела.', 'Head of Academic Department.', 'رئيس القسم الأكاديمي.'),
+    resume: '/resumes/baizakov-azamat.docx',
+  },
 };
 
 const news = [
@@ -736,11 +828,23 @@ export const getInstituteContent = (language = 'kz') => {
   };
 
   const localizedPrograms = programs.map((program) => localizeObject(program, lang));
-  const localizedTeachers = teachers.map((teacher) => ({
-    ...localizeObject(teacher, lang),
-    category: categoryNames[lang][teacher.categoryKey],
-    categoryKey: teacher.categoryKey,
-  }));
+  const localizedTeachers = teachers
+    .map((teacher) => {
+      const meta = teacherDirectoryMeta[teacher.id] || {};
+      const localizedTeacher = localizeObject(teacher, lang);
+
+      return {
+        ...localizedTeacher,
+        name: meta.name ? pick(meta.name, lang) : localizedTeacher.name,
+        label: meta.label ? pick(meta.label, lang) : localizedTeacher.name,
+        shortInfo: meta.shortInfo ? pick(meta.shortInfo, lang) : localizedTeacher.role,
+        resume: meta.resume || '',
+        category: categoryNames[lang][teacher.categoryKey],
+        categoryKey: teacher.categoryKey,
+        directoryOrder: teacherDirectoryOrder.includes(teacher.id) ? teacherDirectoryOrder.indexOf(teacher.id) : 999,
+      };
+    })
+    .sort((a, b) => a.directoryOrder - b.directoryOrder);
   const localizedNews = news.map((item) => localizeObject(item, lang));
   const localizedPartners = partners.map((partner) => localizeObject(partner, lang));
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Award, BookOpen, GraduationCap, MapPin, Users } from 'lucide-react';
+import { ArrowRight, Award, FileText, GraduationCap, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getInstituteContent } from '../data/instituteContent';
 
@@ -29,9 +29,17 @@ const TeacherImage = ({ teacher }) => {
   );
 };
 
+const resumeLabels = {
+  kz: 'Түйіндеме',
+  ru: 'Резюме',
+  en: 'Resume',
+  ar: 'السيرة الذاتية',
+};
+
 const Teachers = () => {
   const { t, i18n } = useTranslation();
   const institute = getInstituteContent(i18n.language);
+  const resumeLabel = resumeLabels[i18n.language] || resumeLabels.kz;
   const phdCount = institute.teachers.filter((teacher) => String(teacher.degree).includes('PhD')).length;
   const internationalCount = institute.teachers.filter((teacher) => !['Қазақстан', 'Казахстан', 'Kazakhstan', 'كازاخستان'].includes(teacher.country)).length;
 
@@ -40,13 +48,7 @@ const Teachers = () => {
     { icon: Award, value: phdCount, label: t('teachers.phd') },
     { icon: GraduationCap, value: internationalCount, label: t('teachers.international', { defaultValue: 'International faculty' }) },
   ];
-  const getTeacherBio = (teacher) =>
-    teacher.bio ||
-    t('teachers.bio_fallback', {
-      role: teacher.role,
-      degree: teacher.degree,
-      country: teacher.country,
-    });
+  const getTeacherBio = (teacher) => teacher.shortInfo || teacher.role;
 
   return (
     <div className="overflow-hidden bg-background">
@@ -77,62 +79,61 @@ const Teachers = () => {
         </div>
       </section>
 
-      {institute.teacherGroups.map((group, groupIndex) => (
-        <section key={group.id} className={`section-y ${groupIndex % 2 === 0 ? 'bg-background' : 'bg-white'}`}>
-          <div className="container-custom">
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }} variants={fadeUp} className="mb-10 max-w-3xl">
-              <p className="section-eyebrow">{institute.teacherEyebrow}</p>
-              <h2 className="section-title">{group.title}</h2>
-            </motion.div>
+      <section className="section-y bg-background">
+        <div className="container-custom">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-80px' }} variants={fadeUp} className="mb-10 max-w-3xl">
+            <p className="section-eyebrow">{institute.teacherEyebrow}</p>
+            <h2 className="section-title">{t('nav.teachers')}</h2>
+          </motion.div>
 
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {group.teachers.map((teacher, index) => (
-                <motion.article
-                  key={teacher.id}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true, margin: '-80px' }}
-                  variants={fadeUp}
-                  transition={{ delay: index * 0.05 }}
-                  className="premium-card group overflow-hidden"
-                >
-                  <div className="aspect-[4/5] overflow-hidden bg-slate-100">
-                    <TeacherImage teacher={teacher} />
-                  </div>
-                  <div className="p-6">
-                    <div className="mb-3 flex flex-wrap gap-2">
-                      <span className="rounded-full bg-accent-lightGold px-3 py-1 text-xs font-bold text-primary">{teacher.degree}</span>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-3 py-1 text-xs font-bold text-slate-600">
-                        <MapPin size={12} />
-                        {teacher.country}
-                      </span>
-                    </div>
-                    <h3 className="text-xl font-bold text-primary-dark">{teacher.name}</h3>
-                    <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{teacher.role}</p>
-                    <p className="mt-3 text-sm leading-7 text-slate-600">{getTeacherBio(teacher)}</p>
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {institute.teachers.map((teacher, index) => (
+              <motion.article
+                key={teacher.id}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-80px' }}
+                variants={fadeUp}
+                transition={{ delay: Math.min(index * 0.04, 0.24) }}
+                className="premium-card group flex min-h-[420px] flex-col items-center p-7 text-center"
+              >
+                <div className="h-40 w-40 overflow-hidden rounded-full bg-slate-100 ring-4 ring-accent-lightGold/80">
+                  <TeacherImage teacher={teacher} />
+                </div>
 
-                    {teacher.education?.length > 0 && (
-                      <div className="mt-5 border-t border-slate-100 pt-5">
-                        <h4 className="mb-3 flex items-center gap-2 text-xs font-extrabold uppercase tracking-[0.12em] text-slate-400">
-                          <BookOpen size={14} />
-                          {t('teachers.education', { defaultValue: t('about.history_title') })}
-                        </h4>
-                        <ul className="space-y-2">
-                          {teacher.education.map((item) => (
-                            <li key={item} className="text-sm leading-6 text-slate-600">
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                <div className="mt-6 flex flex-1 flex-col items-center">
+                  <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-accent-gold">{teacher.label}</p>
+                  <h3 className="mt-3 text-xl font-bold leading-tight text-primary-dark">{teacher.name}</h3>
+                  <p className="mt-3 max-w-sm text-sm font-semibold leading-7 text-slate-600">{getTeacherBio(teacher)}</p>
+
+                  <div className="mt-auto pt-6">
+                    {teacher.resume ? (
+                      <a
+                        href={teacher.resume}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg border border-primary/15 bg-white px-4 py-2 text-sm font-extrabold text-primary transition hover:border-primary hover:bg-primary hover:text-white"
+                      >
+                        <FileText size={16} />
+                        {resumeLabel}
+                      </a>
+                    ) : (
+                      <button
+                        type="button"
+                        disabled
+                        className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-extrabold text-slate-400"
+                      >
+                        <FileText size={16} />
+                        {resumeLabel}
+                      </button>
                     )}
                   </div>
-                </motion.article>
-              ))}
-            </div>
+                </div>
+              </motion.article>
+            ))}
           </div>
-        </section>
-      ))}
+        </div>
+      </section>
 
       <section className="section-y bg-primary-dark text-white">
         <div className="container-custom grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center">

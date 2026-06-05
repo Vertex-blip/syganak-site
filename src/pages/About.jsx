@@ -9,7 +9,6 @@ import {
   Library,
   ShieldCheck,
   Target,
-  User,
   Users,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -43,7 +42,6 @@ const About = () => {
   const stats = institute.stats.map(([value, label]) => ({ value, label }));
   const documents = t('about.documents', { returnObjects: true, defaultValue: [] });
   const materialItems = t('about.material_items', { returnObjects: true, defaultValue: [] });
-  const leadership = institute.teachers.find((teacher) => teacher.id === 'bagdat-manabayev') || institute.teachers[0];
 
   return (
     <div className="bg-background">
@@ -164,33 +162,6 @@ const About = () => {
           </div>
 
           <div className="grid gap-6">
-            <div className="premium-panel overflow-hidden bg-white p-0">
-              <div className="grid gap-0 md:grid-cols-[220px_1fr]">
-                <div className="relative min-h-[260px] bg-slate-100">
-                  <img
-                    src={leadership?.image || '/institute/director.jpg'}
-                    alt={leadership?.name || t('about.leadership_title')}
-                    className="absolute inset-0 h-full w-full object-cover object-top"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="p-6 sm:p-8">
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-accent-lightGold text-primary">
-                    <User size={24} />
-                  </div>
-                  <p className="section-eyebrow">{t('nav.leadership')}</p>
-                  <h2 className="text-3xl font-bold">{t('about.leadership_title')}</h2>
-                  <p className="mt-3 font-serif text-2xl font-bold leading-tight text-primary-dark">{leadership?.name}</p>
-                  <p className="mt-2 text-base font-semibold leading-7 text-slate-700">{leadership?.role}</p>
-                  <p className="mt-4 text-sm leading-7 text-slate-600">{leadership?.bio}</p>
-                  <Link to="/leadership" className="btn-ghost mt-6">
-                    {t('nav.leadership')}
-                    <ArrowRight size={18} />
-                  </Link>
-                </div>
-              </div>
-            </div>
-
             <div className="premium-panel bg-white p-6 sm:p-8">
               <Building2 className="mb-5 text-accent-gold" size={34} />
               <h2 className="text-3xl font-bold">{t('about.material_title')}</h2>
