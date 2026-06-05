@@ -12,7 +12,6 @@ import {
   MapPin,
   MessageCircle,
   Phone,
-  Users,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getInstituteContent } from '../data/instituteContent';
@@ -68,6 +67,7 @@ const Home = () => {
   const institute = useMemo(() => getInstituteContent(i18n.language), [i18n.language, overrideVersion]);
   const [latestNews, setLatestNews] = useState(institute.news.slice(0, 8));
   const newsCarouselRef = useRef(null);
+  const teachersCarouselRef = useRef(null);
   const programs = institute.programs.slice(0, 2);
   const gallery = institute.gallery.slice(0, 6);
 
@@ -96,6 +96,13 @@ const Home = () => {
     const carousel = newsCarouselRef.current;
     if (!carousel) return;
     const distance = Math.max(320, Math.floor(carousel.clientWidth * 0.82));
+    carousel.scrollBy({ left: direction * distance, behavior: 'smooth' });
+  };
+
+  const scrollTeachers = (direction) => {
+    const carousel = teachersCarouselRef.current;
+    if (!carousel) return;
+    const distance = Math.max(280, Math.floor(carousel.clientWidth * 0.75));
     carousel.scrollBy({ left: direction * distance, behavior: 'smooth' });
   };
 
@@ -212,20 +219,29 @@ const Home = () => {
 
       <section className="bg-[#fbf7ef] py-10 sm:py-12">
         <div className="container-custom">
-          <SectionHeader
-            eyebrow={t('home.featured_teachers_eyebrow')}
-            title={t('home.featured_teachers_title')}
-            description={t('home.featured_teachers_desc')}
-            icon={Users}
-            action={
-              <Link to="/teachers" className="btn-ghost shrink-0">
-                {t('home.all_teachers')}
-                <ArrowRight size={16} />
-              </Link>
-            }
-          />
+          <div className="mb-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => scrollTeachers(-1)}
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 bg-white text-primary shadow-sm transition-colors hover:border-accent-gold hover:bg-accent-lightGold"
+              aria-label={t('common.back')}
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollTeachers(1)}
+              className="flex h-11 w-11 items-center justify-center rounded-lg border border-slate-200 bg-white text-primary shadow-sm transition-colors hover:border-accent-gold hover:bg-accent-lightGold"
+              aria-label={t('common.more')}
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+          <div
+            ref={teachersCarouselRef}
+            className="-mx-4 flex snap-x gap-5 overflow-x-auto px-4 pb-4 scroll-smooth no-scrollbar"
+          >
             {featuredTeachers.map((teacher, index) => (
               <motion.article
                 key={teacher.id}
@@ -234,22 +250,34 @@ const Home = () => {
                 viewport={cardViewport}
                 variants={fadeUp}
                 transition={{ delay: index * 0.04 }}
-                className="group premium-card flex h-full min-w-0 flex-col overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-accent-gold/45 hover:shadow-xl"
+                className="group premium-card flex w-[78vw] shrink-0 snap-start flex-col items-center p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:border-accent-gold/45 hover:shadow-xl sm:w-[340px] xl:w-[calc((100%_-_3.75rem)/4)]"
               >
-                <div className="aspect-[4/4.35] overflow-hidden bg-slate-100">
+                <div className="h-48 w-48 overflow-hidden rounded-full border-4 border-white bg-slate-100 shadow-[0_18px_45px_rgba(5,24,17,0.16)] sm:h-56 sm:w-56">
                   <img
                     src={teacher.image}
                     alt={teacher.name}
                     loading="lazy"
                     className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                    width="360"
-                    height="392"
+                    width="224"
+                    height="224"
                   />
                 </div>
-                <div className="flex min-w-0 flex-1 flex-col p-5">
-                  <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-accent-gold">{teacher.category}</p>
-                  <h3 className="mt-2 break-words font-serif text-xl font-bold leading-tight text-primary-dark">{teacher.name}</h3>
-                  <p className="mt-2 line-clamp-3 break-words text-sm font-semibold leading-6 text-slate-600">{teacher.role}</p>
+                <div className="mt-6 flex min-w-0 flex-1 flex-col items-center">
+                  {teacher.id === 'bagdat-manabayev' ? (
+                    <>
+                      <h3 className="break-words text-base font-extrabold uppercase leading-snug tracking-[0.03em] text-primary-dark">
+                        МАНАБАЕВ БАҒДАТ МАХАНҰЛЫ
+                      </h3>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">
+                        PhD доктор, институт басшысы
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h3 className="break-words font-serif text-xl font-bold leading-tight text-primary-dark">{teacher.name}</h3>
+                      <p className="mt-2 line-clamp-3 break-words text-sm font-semibold leading-6 text-slate-600">{teacher.role}</p>
+                    </>
+                  )}
                 </div>
               </motion.article>
             ))}
