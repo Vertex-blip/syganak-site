@@ -107,7 +107,7 @@ const Teachers = () => {
                   <p className="mt-3 max-w-sm text-sm font-semibold leading-7 text-slate-600">{getTeacherBio(teacher)}</p>
 
                   <div className="mt-auto pt-6">
-                    {teacher.resume ? (
+                    {teacher.resume && teacher.resumeReady ? (
                       <a
                         href={teacher.resume}
                         target="_blank"

@@ -839,6 +839,7 @@ export const getInstituteContent = (language = 'kz') => {
         label: meta.label ? pick(meta.label, lang) : localizedTeacher.name,
         shortInfo: meta.shortInfo ? pick(meta.shortInfo, lang) : localizedTeacher.role,
         resume: meta.resume || '',
+        resumeReady: Boolean(meta.resumeReady),
         category: categoryNames[lang][teacher.categoryKey],
         categoryKey: teacher.categoryKey,
         directoryOrder: teacherDirectoryOrder.includes(teacher.id) ? teacherDirectoryOrder.indexOf(teacher.id) : 999,
